@@ -20,6 +20,8 @@ try {
   })
 
   app.post('/jobapplication', jobApplicationController)
+  app.post('/signup', signUpController)
+    app.post('/signin', signInController)
 
   app.listen(port, () => {
     console.log(port)
