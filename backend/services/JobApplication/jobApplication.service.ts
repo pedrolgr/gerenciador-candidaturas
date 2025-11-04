@@ -13,11 +13,6 @@ export class JobApplicationServices {
         } else {
             console.log("found")
         }
-
-        // const newJobApplication = new JobApplication(data);
-        // const x = await newJobApplication.save();
-
-        // console.log(newJobApplication, x)
         
     }
 

@@ -2,6 +2,8 @@ import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { jobApplicationController } from './controllers/JobApplication/jobApplication.controller.ts';
+import { signUpController } from './controllers/signUp.controller.ts';
+import { signInController } from './controllers/signIn.controller.ts';
 
 dotenv.config()
 
@@ -21,7 +23,7 @@ try {
 
   app.post('/jobapplication', jobApplicationController)
   app.post('/signup', signUpController)
-    app.post('/signin', signInController)
+  app.post('/signin', signInController)
 
   app.listen(port, () => {
     console.log(port)

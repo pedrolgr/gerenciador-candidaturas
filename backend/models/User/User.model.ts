@@ -8,4 +8,30 @@ const UserSchema = new Schema({
     password: {type: String, required: true},
 })
 
+
+
+UserSchema.statics = {
+    async create(data) {
+        try {
+            const newUser = new User(data);
+            const savedUser = await newUser.save();
+
+            return savedUser;
+            
+        } catch(e) {
+            throw new Error("Error during user creation");
+        }
+    },
+
+    async delete(data) {
+
+    },
+
+    async edit(data) {
+
+    }
+
+}
+
+
 export const User = mongoose.model('User', UserSchema);
