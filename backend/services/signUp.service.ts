@@ -11,14 +11,16 @@ export class signUpServices {
             const searchUser = await User.findOne({ email: `${data.email}` })
             
             if (searchUser) {
-                return false;
+                throw new Error("User already exists!");
             } 
             
             const saltRounds = 10;
             const salt = await bcrypt.genSalt(saltRounds);
             data.password = await bcrypt.hash(data.password, salt);
 
-            console.log(data)
+            const createdUser = await User.create(data);
+
+            return createdUser;
 
         } catch (e) {
             console.log(e)

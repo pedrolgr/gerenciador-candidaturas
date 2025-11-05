@@ -10,6 +10,7 @@ export async function signUpController(req: Request, res: Response) {
         
         const createdUser = await signUpServices.createUser(data);
         
+        console.log(createdUser)
 
         if(createdUser) {
             res.send(`User created: ${createdUser}`);

@@ -8,8 +8,6 @@ const UserSchema = new Schema({
     password: {type: String, required: true},
 })
 
-
-
 UserSchema.statics = {
     async create(data) {
         try {
@@ -19,6 +17,7 @@ UserSchema.statics = {
             return savedUser;
             
         } catch(e) {
+            console.log(e)
             throw new Error("Error during user creation");
         }
     },
