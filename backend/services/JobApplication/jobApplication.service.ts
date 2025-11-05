@@ -6,13 +6,7 @@ export class JobApplicationServices {
 
     static async createJobApplication(data:JobApplicationType) {
 
-        const searchJobApplication = await JobApplication.findOne(data)
-
-        if(!searchJobApplication) {
-            console.log("notfound")
-        } else {
-            console.log("found")
-        }
+        
         
     }
 
