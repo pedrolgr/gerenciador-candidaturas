@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { Signup } from './routes/public/Signup'
+import { Signup } from './routes/public/Signup/Signup'
 
 let router = createBrowserRouter([
   {

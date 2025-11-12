@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const UserBody = z.object({
-    name: z.string().min(5).max(30)
+    fullName: z.string().min(5).max(30)
     .transform((val) => {
         return val
         .trim()
@@ -9,7 +9,6 @@ export const UserBody = z.object({
         .toLowerCase()
         .replace(/\b\w/g, (c) => c.toUpperCase());
     }),
-    username: z.string().min(5).max(12),
     email: z.email()
     .transform((val) => {
         return val.trim().toLowerCase();
