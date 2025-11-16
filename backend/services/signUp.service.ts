@@ -1,4 +1,3 @@
-import type { Request, Response } from 'express';
 import type { UserType } from '../models/User/User.schema';
 import { User } from '../models/User/User.model';
 import bcrypt from 'bcrypt';
@@ -11,7 +10,7 @@ export class signUpServices {
             const searchUser = await User.findOne({ email: `${data.email}` })
             
             if (searchUser) {
-                throw new Error("User already exists!");
+                throw new Error("E-mail aready in use!");
             } 
             
             const saltRounds = 10;

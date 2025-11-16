@@ -15,7 +15,7 @@ export async function signUpController(req: Request, res: Response) {
         if(createdUser) {
             res.send(`User created: ${createdUser}`);
         } else {
-            res.send('Error')
+            res.status(400).send('Error during creating user!');
         }
 
     } catch(e) {

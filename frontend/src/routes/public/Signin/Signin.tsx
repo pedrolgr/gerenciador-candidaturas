@@ -12,40 +12,37 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { signUpSchema, type SignUpType } from "./SignupSchema"
+import { signInSchema, type SignInType } from "./SigninSchema"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 
 
-export function Signup() {
+export function Signin() {
 
     const navigate = useNavigate();
 
-    const form = useForm<SignUpType>({
-        resolver: zodResolver(signUpSchema),
+    const form = useForm({
+        resolver: zodResolver(signInSchema),
         defaultValues: {
-            fullName: "",
             email: "",
             password: "",
-            passwordConfirmation: "",
         },
     })
 
     const { handleSubmit } = form;
 
-    const onSubmit: SubmitHandler<SignUpType> = async (data) => {
+    const onSubmit: SubmitHandler<SignInType> = async (data) => {
 
-        const newUser = {
-            fullName: data.fullName,
+        const loginCredentials = {
             email: data.email,
             password: data.password
         }
 
         try {
-            const response = await axios.post("http://localhost:3000/signup", newUser)
+            const response = await axios.post("http://localhost:3000/signin", loginCredentials)
             console.log(response)
-            navigate("/jobdashboard")
+            // navigate("/jobdashboard")
             // Criar o componente para exibir na tela que o usuário foi cadastrado com sucesso
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -62,35 +59,14 @@ export function Signup() {
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <Card className="w-full max-w-sm">
                 <CardHeader>
-                    <CardTitle>Crie sua conta</CardTitle>
+                    <CardTitle>Login</CardTitle>
                     <CardDescription>
-                        Digite seu e-mail e sua senha abaixo para criar sua conta.
+                        Digite seu e-mail e sua senha abaixo.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form id="signup-form" onSubmit={handleSubmit(onSubmit)}>
                         <FieldGroup>
-                            <Controller
-                                name="fullName"
-                                control={form.control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>
-                                            Nome Completo
-                                        </FieldLabel>
-                                        <Input
-                                            {...field}
-                                            id="fullNameInput"
-                                            type="text"
-                                            placeholder="Digite seu nome completo"
-                                            required
-                                        />
-                                        {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]} />
-                                        )}
-                                    </Field>
-                                )}
-                            />
                             <Controller
                                 name="email"
                                 control={form.control}
@@ -133,37 +109,16 @@ export function Signup() {
                                     </Field>
                                 )}
                             />
-                            <Controller
-                                name="passwordConfirmation"
-                                control={form.control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>
-                                            Confirme sua senha
-                                        </FieldLabel>
-                                        <Input
-                                            {...field}
-                                            id="passwordConfirmationInput"
-                                            type="password"
-                                            placeholder="Confirme sua senha"
-                                            required
-                                        />
-                                        {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]} />
-                                        )}
-                                    </Field>
-                                )}
-                            />
                         </FieldGroup>
                     </form>
                 </CardContent>
                 <CardFooter>
                     <div className="grid gap-2 w-full">
                         <Button type="submit" form="signup-form" className="w-full cursor-pointer">
-                            Criar Conta
+                            Login
                         </Button>
                         <Button type="submit" variant="outline" disabled className="w-full">
-                            Crie sua Conta com Google
+                            Login via Google
                         </Button>
                     </div>
                 </CardFooter>
