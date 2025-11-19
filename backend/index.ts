@@ -24,9 +24,9 @@ try {
     res.send(`${app}`)
   })
 
-  app.post('/jobapplication', jobApplicationController)
-  app.post('/signup', signUpController)
-  app.post('/signin', signInController)
+  app.post('/api/jobapplication', jobApplicationController);
+  app.post('/api/signup', signUpController);
+  app.post('/api/signin', signInController);
 
   app.listen(port, () => {
     console.log(port)

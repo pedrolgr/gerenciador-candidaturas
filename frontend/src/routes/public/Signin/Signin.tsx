@@ -40,7 +40,7 @@ export function Signin() {
         }
 
         try {
-            const response = await axios.post("http://localhost:3000/signin", loginCredentials)
+            const response = await axios.post("/api/signin", loginCredentials, {withCredentials: true});
             console.log(response)
             // navigate("/jobdashboard")
             // Criar o componente para exibir na tela que o usuário foi cadastrado com sucesso
