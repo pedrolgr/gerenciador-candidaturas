@@ -5,6 +5,9 @@ import { jobApplicationController } from './controllers/JobApplication/jobApplic
 import { signUpController } from './controllers/signUp.controller.ts';
 import { signInController } from './controllers/signIn.controller.ts';
 import cors from "cors"
+import jwt from 'jsonwebtoken';
+import cookieParser from "cookie-parser";
+import { authController } from './controllers/authController.ts';
 
 dotenv.config()
 
@@ -13,6 +16,7 @@ app.use(cors({
   origin:'http://localhost:5173'
 }))
 app.use(express.json());
+app.use(cookieParser());
 
 const MONGO_URI = process.env.MONGO_URI as string;
 
@@ -23,6 +27,9 @@ try {
   app.get('/', (req, res) => {
     res.send(`${app}`)
   })
+
+  app.get('/api/auth', authController);
+
 
   app.post('/api/jobapplication', jobApplicationController);
   app.post('/api/signup', signUpController);

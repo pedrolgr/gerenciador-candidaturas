@@ -32,6 +32,22 @@ export function Signin() {
 
     const { handleSubmit } = form;
 
+    const validateUser = async () => {
+        
+        try{
+            const token = await axios.get("/api/auth", {withCredentials: true})
+            
+            return {isValid: true,
+                    user: token.data.user
+                }
+
+        } catch (err) {
+
+            return {isValid: false}
+        }
+
+    }
+
     const onSubmit: SubmitHandler<SignInType> = async (data) => {
 
         const loginCredentials = {
@@ -41,9 +57,9 @@ export function Signin() {
 
         try {
             const response = await axios.post("/api/signin", loginCredentials, {withCredentials: true});
-            console.log(response)
-            // navigate("/jobdashboard")
-            // Criar o componente para exibir na tela que o usuário foi cadastrado com sucesso
+            
+            if((await validateUser()).isValid) navigate("/jobdashboard")
+            
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 // Criar o componente para exibir na tela o erro durante cadastro do usuario
