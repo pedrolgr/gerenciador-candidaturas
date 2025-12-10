@@ -50,12 +50,13 @@ export function Signin() {
 
     const onSubmit: SubmitHandler<SignInType> = async (data) => {
 
-        const loginCredentials = {
+        try {
+
+            const loginCredentials = {
             email: data.email,
             password: data.password
         }
-
-        try {
+        
             const response = await axios.post("/api/signin", loginCredentials, {withCredentials: true});
             
             if((await validateUser()).isValid) navigate("/jobdashboard")
