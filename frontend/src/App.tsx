@@ -1,28 +1,43 @@
-import { useState } from 'react'
 import './App.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Signup } from './routes/public/Signup/Signup'
 import { Signin } from './routes/public/Signin/Signin'
 import { JobDashboard } from './routes/private/JobDashboard/JobDashboard'
+import { AuthProvider } from './context/AuthContext'
+import { PrivateRoute } from './routes/PrivateRoute'
+import { PublicRoute } from './routes/PublicRoute'
 
-let router = createBrowserRouter([
+const router = createBrowserRouter([
   {
-    path: "/signup",
-    Component: Signup
+    element: <PublicRoute />,
+    children: [
+      {
+        path: "/signup",
+        Component: Signup
+      },
+      {
+        path: "/signin",
+        Component: Signin
+      }
+    ]
   },
   {
-    path: "/signin",
-    Component: Signin
-  },
-  {
-    path: "/jobdashboard",
-    Component: JobDashboard,
+    element: <PrivateRoute />,
+    children: [
+      {
+        path: "/jobdashboard",
+        Component: JobDashboard,
+      }
+    ]
   }
 ])
 
 function App() {
-
-  return <RouterProvider router={router} />
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  )
 }
 
 export default App

@@ -21,8 +21,8 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "@/context/AuthContext";
 
 export function JobDashboard() {
     const [open, setOpen] = useState(true);
@@ -46,7 +46,6 @@ export function JobDashboard() {
         endDate: undefined,
     });
 
-    const navigate = useNavigate();
 
 
     const handleChange = (e) => {
@@ -61,24 +60,17 @@ export function JobDashboard() {
         setModalOpen(false);
     };
 
+    const { logout } = useAuth();
+
+    // navigate is likely unused if we rely on AuthContext change -> PrivateRoute redirect, 
+    // but we can keep it for explicit action or if PrivateRoute logic is subtle.
+    // Actually, PrivateRoute redirects when `user` becomes null.
+
     const handleLogout = async () => {
-        try {
-            const res = await fetch("http://localhost:3000/api/logout", {
-                method: "POST",
-                credentials: "include",
-            });
-
-            if (!res.ok) {
-                alert("Erro ao deslogar");
-                return;
-            }
-
-            navigate("/signin");
-
-        } catch (error) {
-            console.error("Erro no logout:", error);
-            alert("Erro ao tentar logar.");
-        }
+        await logout();
+        // The PrivateRoute will handle redirection when `isAuthenticated` becomes false.
+        // But if we want to be sure:
+        // navigate("/signin"); 
     };
 
 

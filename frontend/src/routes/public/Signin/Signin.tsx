@@ -1,6 +1,6 @@
-import axios from "axios"
-import { redirect, useNavigate } from "react-router";
-import dotenv from 'dotenv';
+import { useNavigate } from "react-router";
+import { useAuth } from "../../../context/AuthContext";
+// import dotenv from 'dotenv'; // Not used in frontend usually like this
 import { useForm, Controller, type SubmitHandler } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 
 
 export function Signin() {
-
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     const form = useForm({
@@ -32,44 +32,28 @@ export function Signin() {
 
     const { handleSubmit } = form;
 
-    const validateUser = async () => {
-        
-        try{
-            const token = await axios.get("/api/auth", {withCredentials: true})
-            
-            return {isValid: true,
-                    user: token.data.user
-                }
-
-        } catch (err) {
-
-            return {isValid: false}
-        }
-
-    }
-
     const onSubmit: SubmitHandler<SignInType> = async (data) => {
-
         try {
-
             const loginCredentials = {
-            email: data.email,
-            password: data.password
-        }
-        
-            const response = await axios.post("/api/signin", loginCredentials, {withCredentials: true});
-            
-            if((await validateUser()).isValid) navigate("/jobdashboard")
-            
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                // Criar o componente para exibir na tela o erro durante cadastro do usuario
-            } else {
-                // Criar componente pra exibr na tela o a exceção inesperada
+                email: data.email,
+                password: data.password
             }
+
+            // Using context for login
+            const success = await login(loginCredentials);
+            if (success) {
+                navigate("/jobdashboard");
+            } else {
+                // Handle login failure manually if necessary, 
+                // though context might not expose failure details easily without modification
+                // For now, if login returns false, we assume generic error or rely on interceptors.
+                // Ideally we show an error toast.
+                console.error("Login failed via context");
+            }
+
+        } catch (error) {
+            console.error("Unexpected error during login", error);
         }
-            
-        
     }
 
     return (
