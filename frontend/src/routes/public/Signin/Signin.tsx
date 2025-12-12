@@ -44,10 +44,7 @@ export function Signin() {
             if (success) {
                 navigate("/jobdashboard");
             } else {
-                // Handle login failure manually if necessary, 
-                // though context might not expose failure details easily without modification
-                // For now, if login returns false, we assume generic error or rely on interceptors.
-                // Ideally we show an error toast.
+
                 console.error("Login failed via context");
             }
 

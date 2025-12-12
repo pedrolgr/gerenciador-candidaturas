@@ -4,7 +4,6 @@ import axios from "axios";
 interface User {
   id: string;
   email: string;
-  // Add other user properties as needed
 }
 
 interface AuthContextType {
@@ -21,7 +20,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check auth status on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -32,7 +30,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(null);
         }
       } catch (error) {
-        // If 401 or network error, assume not logged in
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -44,16 +41,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (credentials: any) => {
     try {
-        // The actual login call is usually done in the component, OR we can wrap it here.
-        // Based on the plan, let's allow the component to do the heavy lifting or do it here.
-        // Let's do the login call here to keep state consistent.
+
         const response = await axios.post("/api/signin", credentials, { withCredentials: true });
         
-        // After successful login, verify token/get user details if the Login API doesn't return them fully
-        // Or just rely on the response if it returns the user.
-        // Assuming /api/signin returns the user or we fetch it immediately after.
-        
-        // Let's verify auth immediately to be sure
         const authResponse = await axios.get("/api/auth", { withCredentials: true });
         if (authResponse.data.user) {
              setUser(authResponse.data.user);
@@ -72,7 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
     } catch (error) {
       console.error("Logout failed", error);
-      // Even if API fails, clear local state
       setUser(null);
     }
   };

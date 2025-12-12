@@ -21,6 +21,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import { FieldError } from "@/components/ui/field";
 
 import { useAuth } from "@/context/AuthContext";
 
@@ -38,39 +39,62 @@ export function JobDashboard() {
         endDate: Date | undefined;
     }
 
-    const [form, setForm] = useState<FormState>({
+    const initialFormState: FormState = {
         title: "",
         company: "",
         description: "",
         startDate: undefined,
         endDate: undefined,
-    });
+    };
+
+    const [form, setForm] = useState<FormState>(initialFormState);
+    const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
 
 
 
-    const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const name = e.target.name as keyof FormState;
+        setForm({ ...form, [name]: e.target.value });
+        if (errors[name]) {
+            setErrors({ ...errors, [name]: undefined });
+        }
+    };
+
+    const handleOpenChange = (isOpen: boolean) => {
+        setModalOpen(isOpen);
+        if (!isOpen) {
+            setForm(initialFormState);
+            setErrors({});
+        }
     };
 
 
     const handleSubmit = () => {
-        if (!form.startDate || !form.endDate) return;
-        const isClosed = form.endDate < new Date() ? new Date() : null;
+        const newErrors: Partial<Record<keyof FormState, string>> = {};
+        if (!form.title) newErrors.title = "Título é obrigatório";
+        if (!form.startDate) newErrors.startDate = "Data inicial é obrigatória";
+        if (form.endDate && form.startDate) {
+            if (form.endDate < form.startDate) {
+                newErrors.endDate = "Data final deve ser posterior à inicial";
+            }
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        const isClosed = (form.endDate && form.endDate < new Date()) ? new Date() : null;
         console.log({ ...form, isClosed });
+        setForm(initialFormState);
+        setErrors({});
         setModalOpen(false);
     };
 
     const { logout } = useAuth();
 
-    // navigate is likely unused if we rely on AuthContext change -> PrivateRoute redirect, 
-    // but we can keep it for explicit action or if PrivateRoute logic is subtle.
-    // Actually, PrivateRoute redirects when `user` becomes null.
-
     const handleLogout = async () => {
         await logout();
-        // The PrivateRoute will handle redirection when `isAuthenticated` becomes false.
-        // But if we want to be sure:
-        // navigate("/signin"); 
     };
 
 
@@ -122,7 +146,7 @@ export function JobDashboard() {
                 </Card>
             </main>
 
-            <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+            <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
                 <DialogContent className="max-w-lg">
                     <DialogHeader>
                         <DialogTitle>Cadastrar vaga</DialogTitle>
@@ -133,6 +157,7 @@ export function JobDashboard() {
                         <div className="grid gap-2">
                             <Label>Título*</Label>
                             <Input name="title" value={form.title} onChange={handleChange} required />
+                            {errors.title && <FieldError errors={[{ message: errors.title }]} />}
                         </div>
 
 
@@ -169,6 +194,7 @@ export function JobDashboard() {
                                         selected={form.startDate}
                                         onSelect={(date) => {
                                             setForm({ ...form, startDate: date });
+                                            if (date) setErrors({ ...errors, startDate: undefined });
                                             setIsStartDateOpen(false);
                                         }}
                                         initialFocus
@@ -176,11 +202,12 @@ export function JobDashboard() {
                                     />
                                 </PopoverContent>
                             </Popover>
+                            {errors.startDate && <FieldError errors={[{ message: errors.startDate }]} />}
                         </div>
 
 
                         <div className="grid gap-2">
-                            <Label>Data final*</Label>
+                            <Label>Data final</Label>
                             <Popover open={isEndDateOpen} onOpenChange={setIsEndDateOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -200,6 +227,7 @@ export function JobDashboard() {
                                         selected={form.endDate}
                                         onSelect={(date) => {
                                             setForm({ ...form, endDate: date });
+                                            if (date) setErrors({ ...errors, endDate: undefined });
                                             setIsEndDateOpen(false);
                                         }}
                                         disabled={(date) => !!form.startDate && date < form.startDate}
@@ -208,6 +236,7 @@ export function JobDashboard() {
                                     />
                                 </PopoverContent>
                             </Popover>
+                            {errors.endDate && <FieldError errors={[{ message: errors.endDate }]} />}
                         </div>
 
 
