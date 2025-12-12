@@ -16,8 +16,6 @@ import { signUpSchema, type SignUpType } from "./SignupSchema"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-
-
 export function Signup() {
 
     const navigate = useNavigate();
@@ -43,7 +41,7 @@ export function Signup() {
         }
 
         try {
-            const response = await axios.post("http://localhost:3000/signup", newUser)
+            const response = await axios.post("http://localhost:3000/api/signup", newUser)
             console.log(response)
             navigate("/jobdashboard")
             // Criar o componente para exibir na tela que o usuário foi cadastrado com sucesso

@@ -21,14 +21,14 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 export function JobDashboard() {
     const [open, setOpen] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [isStartDateOpen, setIsStartDateOpen] = useState(false);
     const [isEndDateOpen, setIsEndDateOpen] = useState(false);
-
-
 
     interface FormState {
         title: string;
@@ -46,6 +46,8 @@ export function JobDashboard() {
         endDate: undefined,
     });
 
+    const navigate = useNavigate();
+
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -57,6 +59,26 @@ export function JobDashboard() {
         const isClosed = form.endDate < new Date() ? new Date() : null;
         console.log({ ...form, isClosed });
         setModalOpen(false);
+    };
+
+    const handleLogout = async () => {
+        try {
+            const res = await fetch("http://localhost:3000/api/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            if (!res.ok) {
+                alert("Erro ao deslogar");
+                return;
+            }
+
+            navigate("/signin");
+
+        } catch (error) {
+            console.error("Erro no logout:", error);
+            alert("Erro ao tentar logar.");
+        }
     };
 
 
@@ -84,7 +106,8 @@ export function JobDashboard() {
                 </div>
 
 
-                <div className="p-4 border-t flex items-center gap-3 cursor-pointer hover:bg-accent">
+                <div className="p-4 border-t flex items-center gap-3 cursor-pointer hover:bg-accent"
+                    onClick={handleLogout}>
                     <LogOut className="h-5 w-5" />
                     {open && <span className="font-medium">Sair</span>}
                 </div>

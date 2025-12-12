@@ -8,12 +8,14 @@ import cors from "cors"
 import jwt from 'jsonwebtoken';
 import cookieParser from "cookie-parser";
 import { authController } from './controllers/authController.ts';
+import { logOutController } from './controllers/logOutController.ts';
 
 dotenv.config()
 
 const app = express();
 app.use(cors({
-  origin:'http://localhost:5173'
+  origin:'http://localhost:5173',
+   credentials: true
 }))
 app.use(express.json());
 app.use(cookieParser());
@@ -34,6 +36,7 @@ try {
   app.post('/api/jobapplication', jobApplicationController);
   app.post('/api/signup', signUpController);
   app.post('/api/signin', signInController);
+  app.post('/api/logout', logOutController);
 
   app.listen(port, () => {
     console.log(port)
