@@ -1,21 +1,21 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import { jobApplicationController } from './controllers/JobApplication/jobApplication.controller.ts';
+import { createJobApplication, getJobApplications } from './controllers/JobApplication/jobApplication.controller.ts';
 import { signUpController } from './controllers/signUp.controller.ts';
 import { signInController } from './controllers/signIn.controller.ts';
 import cors from "cors"
 import jwt from 'jsonwebtoken';
 import cookieParser from "cookie-parser";
-import { authController } from './controllers/authController.ts';
+import { authController, authenticateUser } from './controllers/authController.ts';
 import { logOutController } from './controllers/logOutController.ts';
 
 dotenv.config()
 
 const app = express();
 app.use(cors({
-  origin:'http://localhost:5173',
-   credentials: true
+  origin: 'http://localhost:5173',
+  credentials: true
 }))
 app.use(express.json());
 app.use(cookieParser());
@@ -33,7 +33,9 @@ try {
   app.get('/api/auth', authController);
 
 
-  app.post('/api/jobapplication', jobApplicationController);
+  app.post('/api/jobapplication', authenticateUser, createJobApplication);
+  app.get('/api/jobapplication', authenticateUser, getJobApplications);
+
   app.post('/api/signup', signUpController);
   app.post('/api/signin', signInController);
   app.post('/api/logout', logOutController);
@@ -41,7 +43,7 @@ try {
   app.listen(port, () => {
     console.log(port)
   })
-  
+
 } catch (err) {
   console.log(err)
 }

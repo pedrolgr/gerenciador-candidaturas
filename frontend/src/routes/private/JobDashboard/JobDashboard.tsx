@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -52,6 +53,20 @@ export function JobDashboard() {
 
 
 
+    const [jobs, setJobs] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchJobs = async () => {
+            try {
+                const response = await axios.get("http://localhost:3000/api/jobapplication", { withCredentials: true });
+                setJobs(response.data);
+            } catch (error) {
+                console.error("Error fetching jobs", error);
+            }
+        };
+        fetchJobs();
+    }, []);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const name = e.target.name as keyof FormState;
         setForm({ ...form, [name]: e.target.value });
@@ -69,7 +84,7 @@ export function JobDashboard() {
     };
 
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const newErrors: Partial<Record<keyof FormState, string>> = {};
         if (!form.title) newErrors.title = "Título é obrigatório";
         if (!form.startDate) newErrors.startDate = "Data inicial é obrigatória";
@@ -84,11 +99,17 @@ export function JobDashboard() {
             return;
         }
 
-        const isClosed = (form.endDate && form.endDate < new Date()) ? new Date() : null;
-        console.log({ ...form, isClosed });
-        setForm(initialFormState);
-        setErrors({});
-        setModalOpen(false);
+        try {
+            const response = await axios.post("http://localhost:3000/api/jobapplication", form, { withCredentials: true });
+            if (response.status === 201) {
+                setJobs([...jobs, response.data]);
+                setForm(initialFormState);
+                setErrors({});
+                setModalOpen(false);
+            }
+        } catch (error) {
+            console.error("Error creating job", error);
+        }
     };
 
     const { logout } = useAuth();
@@ -139,11 +160,29 @@ export function JobDashboard() {
                 </div>
 
 
-                <Card>
-                    <CardContent className="p-10 text-muted-foreground text-center">
-                        Nenhuma vaga cadastrada.
-                    </CardContent>
-                </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {jobs.length === 0 ? (
+                        <Card className="col-span-full">
+                            <CardContent className="p-10 text-muted-foreground text-center">
+                                Nenhuma vaga cadastrada.
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        jobs.map((job) => (
+                            <Card key={job._id}>
+                                <CardContent className="p-6">
+                                    <h2 className="text-xl font-bold mb-2">{job.title}</h2>
+                                    <p className="text-gray-600 mb-4">{job.company}</p>
+                                    <p className="text-sm text-gray-500 mb-4">{job.description}</p>
+                                    <div className="flex flex-col gap-1 text-sm text-gray-400">
+                                        <span>Início: {format(new Date(job.startDate), "dd/MM/yyyy")}</span>
+                                        {job.endDate && <span>Fim: {format(new Date(job.endDate), "dd/MM/yyyy")}</span>}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))
+                    )}
+                </div>
             </main>
 
             <Dialog open={modalOpen} onOpenChange={handleOpenChange}>

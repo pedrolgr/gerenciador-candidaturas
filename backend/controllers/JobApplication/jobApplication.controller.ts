@@ -2,16 +2,26 @@ import type { Request, Response } from "express";
 import { JobApplicationServices } from "../../services/JobApplication/jobApplication.service";
 import { JobApplicationBody } from "../../models/JobApplication/jobApplication.schema";
 
-export async function jobApplicationController(req: Request, res: Response) {
-
+export async function createJobApplication(req: Request, res: Response) {
     try {
         const data = JobApplicationBody.parse(req.body);
+        const userId = (req as any).user.id;
 
-        const createdJobApplication = await JobApplicationServices.createJobApplication(data);
-
-    } catch(e) {
-        res.send(e)
-        console.log(e)
+        const createdJob = await JobApplicationServices.createJobApplication(data, userId);
+        res.status(201).json(createdJob);
+    } catch (e) {
+        res.status(400).send(e);
+        console.log(e);
     }
+}
 
+export async function getJobApplications(req: Request, res: Response) {
+    try {
+        const userId = (req as any).user.id;
+        const jobs = await JobApplicationServices.getJobApplications(userId);
+        res.status(200).json(jobs);
+    } catch (e) {
+        res.status(500).send(e);
+        console.log(e);
+    }
 }
