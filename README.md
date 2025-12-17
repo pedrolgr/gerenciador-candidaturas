@@ -34,7 +34,11 @@ Antes de começar, certifique-se de ter instalado em sua máquina:
 Clone este repositório:
 
 ```bash
+<<<<<<< HEAD
 git clone <seu-repositorio-url>
+=======
+git clone https://github.com/pedrolgr/gerenciador-candidaturas.git
+>>>>>>> ec89bd1050e8d9c30626b92c0995ea70afbda9d5
 cd gerenciador-candidaturas
 ```
 
@@ -82,6 +86,17 @@ npm run dev
 
 O frontend geralmente iniciará na porta `5173` (ou outra disponível indicada no terminal).
 
+<<<<<<< HEAD
+=======
+## 💻 Rotas da Aplicação (Frontend)
+
+URLs acessíveis pelo navegador:
+
+- `/signin` - Página de Login.
+- `/signup` - Página de Cadastro.
+- `/jobdashboard` - Painel de controle de candidaturas (Requer login).
+
+>>>>>>> ec89bd1050e8d9c30626b92c0995ea70afbda9d5
 ## 🖥️ Utilização
 
 1. Abra o navegador e acesse `http://localhost:5173`.
@@ -108,6 +123,7 @@ gerenciador-candidaturas/
 └── ...
 ```
 
+<<<<<<< HEAD
 ## 💻 Rotas da Aplicação (Frontend)
 
 URLs acessíveis pelo navegador:
@@ -128,6 +144,8 @@ URLs acessíveis pelo navegador:
 - `POST /api/jobapplication` - Cria uma nova candidatura (Requer autenticação).
 - `GET /api/jobapplication` - Retorna todas as candidaturas do usuário autenticado.
 
+=======
+>>>>>>> ec89bd1050e8d9c30626b92c0995ea70afbda9d5
 ## 📝 Observações
 
 - O backend está configurado para rodar na porta `3000`.
