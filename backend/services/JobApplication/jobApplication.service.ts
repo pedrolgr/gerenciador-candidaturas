@@ -6,8 +6,13 @@ export class JobApplicationServices {
 
     static async createJobApplication(data: JobApplicationType, userId: string) {
         try {
-            const jobApplication = await JobApplication.create(data);
-        
+            const newJob = {
+                ...data,
+                user: userId
+            };
+
+            const jobApplication = await JobApplication.create(newJob);
+
             return jobApplication;
         } catch(e) {
             console.log(e)
