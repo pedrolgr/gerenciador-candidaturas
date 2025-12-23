@@ -23,13 +23,17 @@ JobApplicationSchema.statics = {
             throw new Error("Error during job application creation");
         }
     },
-    
-    async delete(data) {
 
+    async delete(data) {
+        try {
+            await JobApplication.deleteOne({ _id: data })
+        } catch (e) {
+            console.log(e)
+            throw new Error("Error during delete job application");
+        }
     },
 
     async edit(data) {
-
     }
 }
 

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { JobApplication } from '../../models/JobApplication/JobApplication.model';
 import type { JobApplicationType } from '../../models/JobApplication/jobApplication.schema';
+import type { deleteJobApplication } from '../../controllers/JobApplication/jobApplication.controller';
 
 export class JobApplicationServices {
 
@@ -14,7 +15,7 @@ export class JobApplicationServices {
             const jobApplication = await JobApplication.create(newJob);
 
             return jobApplication;
-        } catch(e) {
+        } catch (e) {
             console.log(e)
         }
     }
@@ -22,6 +23,16 @@ export class JobApplicationServices {
     static async getJobApplications(userId: string) {
 
         return await JobApplication.find({ user: userId });
+    }
+
+    static async deleteJobApplication(jobId: string) {
+        try {
+            const deleteJobApplication = await JobApplication.delete(jobId)
+
+            return deleteJobApplication;
+        } catch (e) {
+            console.log(e)
+        }
     }
 
 }

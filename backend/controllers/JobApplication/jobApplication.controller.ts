@@ -25,3 +25,16 @@ export async function getJobApplications(req: Request, res: Response) {
         console.log(e);
     }
 }
+
+export async function deleteJobApplication(req: Request, res: Response) {
+    try {
+        const { jobId } = req.params;
+        const deletedJob = await JobApplicationServices.deleteJobApplication(jobId)
+
+        res.status(200).json(deletedJob)
+
+    } catch (e) {
+        res.status(500).send(e);
+        console.log
+    }
+}

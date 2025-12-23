@@ -12,7 +12,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
-import { Menu, LogOut, Briefcase, CalendarIcon } from "lucide-react";
+import { Menu, LogOut, Briefcase, CalendarIcon, Trash } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -31,6 +31,9 @@ export function JobDashboard() {
     const [modalOpen, setModalOpen] = useState(false);
     const [isStartDateOpen, setIsStartDateOpen] = useState(false);
     const [isEndDateOpen, setIsEndDateOpen] = useState(false);
+
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [jobToDelete, setJobToDelete] = useState<any>(null);
 
     interface FormState {
         title: string;
@@ -118,6 +121,23 @@ export function JobDashboard() {
         await logout();
     };
 
+    const handleDeleteClick = (job: any) => {
+        setJobToDelete(job);
+        setDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!jobToDelete) return;
+        try {
+            await axios.delete(`http://localhost:3000/api/jobapplication/${jobToDelete._id}`, { withCredentials: true });
+            setJobs(jobs.filter(job => job._id !== jobToDelete._id));
+            setDeleteModalOpen(false);
+            setJobToDelete(null);
+        } catch (error) {
+            console.error("Error deleting job", error);
+        }
+    };
+
 
     return (
         <div className="flex h-screen w-full bg-background">
@@ -170,8 +190,11 @@ export function JobDashboard() {
                     ) : (
                         jobs.map((job) => (
                             <Card key={job._id}>
-                                <CardContent className="p-6">
-                                    <h2 className="text-xl font-bold mb-2">{job.title}</h2>
+                                <CardContent className="p-6 relative">
+                                    <div className="absolute top-4 right-4 cursor-pointer text-gray-500 hover:text-red-500" onClick={() => handleDeleteClick(job)}>
+                                        <Trash className="h-5 w-5" />
+                                    </div>
+                                    <h2 className="text-xl font-bold mb-2 pr-8">{job.title}</h2>
                                     <p className="text-gray-600 mb-4">{job.company}</p>
                                     <p className="text-sm text-gray-500 mb-4">{job.description}</p>
                                     <div className="flex flex-col gap-1 text-sm text-gray-400">
@@ -288,6 +311,21 @@ export function JobDashboard() {
 
                     <DialogFooter>
                         <Button onClick={handleSubmit}>Salvar</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirmar exclusão</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <p>Voce deseja apagar a vaga {jobToDelete?.title}?</p>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setDeleteModalOpen(false)}>Cancelar</Button>
+                        <Button variant="destructive" onClick={confirmDelete}>Apagar</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
