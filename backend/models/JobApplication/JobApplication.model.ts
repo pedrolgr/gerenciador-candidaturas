@@ -33,7 +33,19 @@ JobApplicationSchema.statics = {
         }
     },
 
-    async edit(data) {
+    async update(data) {
+        return await JobApplication.findByIdAndUpdate(
+            data.jobId,
+            {
+                $set: {
+                    title: data.title,
+                    company: data.company,
+                    description: data.description,
+                    startDate: data.startDate
+                }
+            },
+            { new: true, runValidators: true }
+        )
     },
 
     async findJobById(jobId) {

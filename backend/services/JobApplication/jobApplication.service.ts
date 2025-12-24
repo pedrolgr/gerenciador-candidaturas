@@ -16,13 +16,28 @@ export class JobApplicationServices {
 
             return jobApplication;
         } catch (e) {
-            console.log(e)
+            console.log(e);
         }
     }
 
     static async getJobApplications(userId: string) {
 
         return await JobApplication.find({ user: userId });
+    }
+
+    static async updateJobApplication(data: JobApplicationType, userId: string) {
+        try {
+            const searchJob = await JobApplication.findJobById(data.jobId)
+            const jobUserId = searchJob.user[0].toString();
+
+            if (jobUserId !== userId) throw new Error("Forbidden");
+
+            const updateJobApplication = await JobApplication.update(data);
+            return updateJobApplication;
+
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     static async deleteJobApplication(jobId: any, userId: string) {
@@ -36,7 +51,7 @@ export class JobApplicationServices {
 
             return deleteJobApplication;
         } catch (e) {
-            console.log(e)
+            console.log(e);
         }
     }
 

@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import { createJobApplication, getJobApplications, deleteJobApplication } from './controllers/JobApplication/jobApplication.controller.ts';
+import { createJobApplication, getJobApplications, deleteJobApplication, updateJobApplication } from './controllers/JobApplication/jobApplication.controller.ts';
 import { signUpController } from './controllers/signUp.controller.ts';
 import { signInController } from './controllers/signIn.controller.ts';
 import cors from "cors"
@@ -36,6 +36,7 @@ try {
   app.post('/api/jobapplication', authenticateUser, createJobApplication);
   app.get('/api/jobapplication', authenticateUser, getJobApplications);
   app.delete('/api/jobapplication/:jobId', authenticateUser, deleteJobApplication);
+  app.put('/api/jobapplication/:jobId', authenticateUser, updateJobApplication);
 
   app.post('/api/signup', signUpController);
   app.post('/api/signin', signInController);

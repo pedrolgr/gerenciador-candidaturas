@@ -26,6 +26,26 @@ export async function getJobApplications(req: Request, res: Response) {
     }
 }
 
+export async function updateJobApplication(req: Request, res: Response) {
+    try {
+        const { jobId } = req.params;
+        const data = JobApplicationBody.parse(req.body);
+
+        const jobData = {
+            ...data,
+            jobId: jobId
+        }
+
+        const userId = (req as any).user.id;
+        const updateJob = await JobApplicationServices.updateJobApplication(jobData, userId);
+
+        res.status(200).json(updateJob);
+    } catch (e) {
+        res.status(500).send(e);
+        console.log(e);
+    }
+}
+
 export async function deleteJobApplication(req: Request, res: Response) {
     try {
         const { jobId } = req.params;

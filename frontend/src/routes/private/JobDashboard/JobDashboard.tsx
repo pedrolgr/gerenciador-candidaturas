@@ -12,7 +12,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
-import { Menu, LogOut, Briefcase, CalendarIcon, Trash } from "lucide-react";
+import { Menu, LogOut, Briefcase, CalendarIcon, Trash, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -34,6 +34,7 @@ export function JobDashboard() {
 
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [jobToDelete, setJobToDelete] = useState<any>(null);
+    const [editingJobId, setEditingJobId] = useState<string | null>(null);
 
     interface FormState {
         title: string;
@@ -82,6 +83,7 @@ export function JobDashboard() {
         setModalOpen(isOpen);
         if (!isOpen) {
             setForm(initialFormState);
+            setEditingJobId(null);
             setErrors({});
         }
     };
@@ -103,15 +105,27 @@ export function JobDashboard() {
         }
 
         try {
-            const response = await axios.post("http://localhost:3000/api/jobapplication", form, { withCredentials: true });
-            if (response.status === 201) {
-                setJobs([...jobs, response.data]);
+            let response: any;
+            if (editingJobId) {
+                response = await axios.put(`http://localhost:3000/api/jobapplication/${editingJobId}`, form, { withCredentials: true });
+                if (response.status === 200) {
+                    setJobs(jobs.map(job => job._id === editingJobId ? response.data : job));
+                }
+            } else {
+                response = await axios.post("http://localhost:3000/api/jobapplication", form, { withCredentials: true });
+                if (response.status === 201) {
+                    setJobs([...jobs, response.data]);
+                }
+            }
+
+            if (response && (response.status === 200 || response.status === 201)) {
                 setForm(initialFormState);
+                setEditingJobId(null);
                 setErrors({});
                 setModalOpen(false);
             }
         } catch (error) {
-            console.error("Error creating job", error);
+            console.error("Error saving job", error);
         }
     };
 
@@ -136,6 +150,18 @@ export function JobDashboard() {
         } catch (error) {
             console.error("Error deleting job", error);
         }
+    };
+
+    const handleEditClick = (job: any) => {
+        setEditingJobId(job._id);
+        setForm({
+            title: job.title,
+            company: job.company || "",
+            description: job.description || "",
+            startDate: new Date(job.startDate),
+            endDate: job.endDate ? new Date(job.endDate) : undefined,
+        });
+        setModalOpen(true);
     };
 
 
@@ -191,8 +217,13 @@ export function JobDashboard() {
                         jobs.map((job) => (
                             <Card key={job._id}>
                                 <CardContent className="p-6 relative">
-                                    <div className="absolute top-4 right-4 cursor-pointer text-gray-500 hover:text-red-500" onClick={() => handleDeleteClick(job)}>
-                                        <Trash className="h-5 w-5" />
+                                    <div className="absolute top-4 right-4 flex gap-2">
+                                        <div className="cursor-pointer text-gray-500 hover:text-blue-500" onClick={() => handleEditClick(job)}>
+                                            <Pencil className="h-5 w-5" />
+                                        </div>
+                                        <div className="cursor-pointer text-gray-500 hover:text-red-500" onClick={() => handleDeleteClick(job)}>
+                                            <Trash className="h-5 w-5" />
+                                        </div>
                                     </div>
                                     <h2 className="text-xl font-bold mb-2 pr-8">{job.title}</h2>
                                     <p className="text-gray-600 mb-4">{job.company}</p>
@@ -211,7 +242,7 @@ export function JobDashboard() {
             <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
                 <DialogContent className="max-w-lg">
                     <DialogHeader>
-                        <DialogTitle>Cadastrar vaga</DialogTitle>
+                        <DialogTitle>{editingJobId ? "Editar vaga" : "Cadastrar vaga"}</DialogTitle>
                     </DialogHeader>
 
 
