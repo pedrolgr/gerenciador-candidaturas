@@ -34,6 +34,10 @@ JobApplicationSchema.statics = {
     },
 
     async edit(data) {
+    },
+
+    async findJobById(jobId) {
+        return await JobApplication.findById(jobId);
     }
 }
 

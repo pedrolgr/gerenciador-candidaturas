@@ -14,13 +14,13 @@ export class signInService {
             const searchUser = await User.findOne({ email: `${data.email}` });
             console.log(searchUser)
 
-            if(!searchUser) {
+            if (!searchUser) {
                 throw new Error('Credenciais invalidas');
             }
 
             const isPasswordValid = await bcrypt.compare(data.password, searchUser.password)
 
-            if(!isPasswordValid) {
+            if (!isPasswordValid) {
                 throw new Error('Credenciais invalidas');
             }
 
@@ -31,7 +31,7 @@ export class signInService {
                 },
                 process.env.JWT_SECRET,
                 {
-                    expiresIn:"5m"
+                    expiresIn: "60m"
                 }
             )
 

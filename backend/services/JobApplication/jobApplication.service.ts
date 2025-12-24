@@ -25,8 +25,13 @@ export class JobApplicationServices {
         return await JobApplication.find({ user: userId });
     }
 
-    static async deleteJobApplication(jobId: string) {
+    static async deleteJobApplication(jobId: any, userId: string) {
         try {
+            const searchJob = await JobApplication.findJobById(jobId)
+            const jobUserId = searchJob.user[0].toString();
+
+            if (jobUserId !== userId) throw new Error("Forbidden");
+
             const deleteJobApplication = await JobApplication.delete(jobId)
 
             return deleteJobApplication;

@@ -29,7 +29,9 @@ export async function getJobApplications(req: Request, res: Response) {
 export async function deleteJobApplication(req: Request, res: Response) {
     try {
         const { jobId } = req.params;
-        const deletedJob = await JobApplicationServices.deleteJobApplication(jobId)
+        const userId = (req as any).user.id;
+
+        const deletedJob = await JobApplicationServices.deleteJobApplication(jobId, userId)
 
         res.status(200).json(deletedJob)
 
