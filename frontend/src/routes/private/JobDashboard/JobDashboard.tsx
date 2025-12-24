@@ -176,7 +176,7 @@ export function JobDashboard() {
                     <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                         <Briefcase className="h-6 w-6" /> Vagas cadastradas
                     </h1>
-                    <Button onClick={() => setModalOpen(true)}>+ Cadastrar vaga</Button>
+                    <Button className="cursor-pointer" onClick={() => setModalOpen(true)}>+ Cadastrar vaga</Button>
                 </div>
 
 
@@ -242,7 +242,7 @@ export function JobDashboard() {
                                     <Button
                                         variant={"outline"}
                                         className={cn(
-                                            "w-full justify-start text-left font-normal",
+                                            "w-full justify-start text-left font-normal cursor-pointer",
                                             !form.startDate && "text-muted-foreground"
                                         )}
                                     >
@@ -275,7 +275,7 @@ export function JobDashboard() {
                                     <Button
                                         variant={"outline"}
                                         className={cn(
-                                            "w-full justify-start text-left font-normal",
+                                            "w-full justify-start text-left font-normal cursor-pointer",
                                             !form.endDate && "text-muted-foreground"
                                         )}
                                     >
@@ -310,7 +310,7 @@ export function JobDashboard() {
 
 
                     <DialogFooter>
-                        <Button onClick={handleSubmit}>Salvar</Button>
+                        <Button className="cursor-pointer" onClick={handleSubmit}>Salvar</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -324,8 +324,8 @@ export function JobDashboard() {
                         <p>Voce deseja apagar a vaga {jobToDelete?.title}?</p>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setDeleteModalOpen(false)}>Cancelar</Button>
-                        <Button variant="destructive" onClick={confirmDelete}>Apagar</Button>
+                        <Button variant="outline" className="cursor-pointer" onClick={() => setDeleteModalOpen(false)}>Cancelar</Button>
+                        <Button variant="destructive" className="cursor-pointer" onClick={confirmDelete}>Apagar</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
