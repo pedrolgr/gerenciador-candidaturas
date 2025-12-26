@@ -1,14 +1,14 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import { createJobApplication, getJobApplications, deleteJobApplication, updateJobApplication } from './controllers/JobApplication/jobApplication.controller.ts';
-import { signUpController } from './controllers/signUp.controller.ts';
-import { signInController } from './controllers/signIn.controller.ts';
+import { createJobApplication, getJobApplications, deleteJobApplication, updateJobApplication } from './controllers/JobApplication/jobApplication.controller';
+import { signUpController } from './controllers/signUp.controller';
+import { signInController } from './controllers/signIn.controller';
 import cors from "cors"
 import jwt from 'jsonwebtoken';
 import cookieParser from "cookie-parser";
-import { authController, authenticateUser } from './controllers/authController.ts';
-import { logOutController } from './controllers/logOutController.ts';
+import { authController, authenticateUser } from './controllers/authController';
+import { logOutController } from './controllers/logOutController';
 
 dotenv.config()
 
