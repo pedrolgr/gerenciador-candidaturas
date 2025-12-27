@@ -125,7 +125,7 @@ export function JobDashboard() {
                 setModalOpen(false);
             }
         } catch (error) {
-            console.error("Error saving job", error);
+            console.error(error.response?.data?.message || error.message);
         }
     };
 

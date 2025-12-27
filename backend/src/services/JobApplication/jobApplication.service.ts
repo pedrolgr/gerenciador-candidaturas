@@ -1,7 +1,9 @@
+
 import mongoose from 'mongoose';
 import { JobApplication } from '../../models/JobApplication/JobApplication.model';
 import type { JobApplicationType } from '../../models/JobApplication/jobApplication.schema';
-import type { deleteJobApplication } from '../../controllers/JobApplication/jobApplication.controller';
+import type { deleteJobApplication } from '../../controllers/jobApplication.controller';
+import { ForbiddenError } from '../../errors/ForbiddenError';
 
 export class JobApplicationServices {
 
@@ -17,6 +19,7 @@ export class JobApplicationServices {
             return jobApplication;
         } catch (e) {
             console.log(e);
+            throw e;
         }
     }
 
@@ -27,31 +30,37 @@ export class JobApplicationServices {
 
     static async updateJobApplication(data: JobApplicationType, userId: string) {
         try {
+            // @ts-ignore
             const searchJob = await JobApplication.findJobById(data.jobId)
             const jobUserId = searchJob.user[0].toString();
 
-            if (jobUserId !== userId) throw new Error("Forbidden");
+            if (jobUserId !== userId) throw new ForbiddenError("Acesso negado");
 
+            // @ts-ignore
             const updateJobApplication = await JobApplication.update(data);
             return updateJobApplication;
 
         } catch (e) {
             console.log(e);
+            throw e;
         }
     }
 
     static async deleteJobApplication(jobId: any, userId: string) {
         try {
+            // @ts-ignore
             const searchJob = await JobApplication.findJobById(jobId)
             const jobUserId = searchJob.user[0].toString();
 
-            if (jobUserId !== userId) throw new Error("Forbidden");
+            if (jobUserId !== userId) throw new ForbiddenError("Acesso negado");
 
+            // @ts-ignore
             const deleteJobApplication = await JobApplication.delete(jobId)
 
             return deleteJobApplication;
         } catch (e) {
             console.log(e);
+            throw e;
         }
     }
 

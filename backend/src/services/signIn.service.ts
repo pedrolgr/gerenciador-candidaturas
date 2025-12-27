@@ -3,6 +3,8 @@ import type { UserCredentialsType } from "../models/User/UserCredentials.schema"
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { UnauthorizedError } from "../errors/UnauthorizedError";
+import { InternalServerError } from "../errors/InternalServerError";
 
 dotenv.config()
 
@@ -15,13 +17,18 @@ export class signInService {
             console.log(searchUser)
 
             if (!searchUser) {
-                throw new Error('Credenciais invalidas');
+                throw new UnauthorizedError('Credenciais inválidas');
             }
 
             const isPasswordValid = await bcrypt.compare(data.password, searchUser.password)
 
             if (!isPasswordValid) {
-                throw new Error('Credenciais invalidas');
+                throw new UnauthorizedError('Credenciais inválidas');
+            }
+
+            const secret = process.env.JWT_SECRET;
+            if (!secret) {
+                throw new Error("JWT_SECRET não está definido");
             }
 
             const token = jwt.sign(
@@ -29,7 +36,7 @@ export class signInService {
                     "id": searchUser._id,
                     "email": searchUser.email
                 },
-                process.env.JWT_SECRET,
+                secret,
                 {
                     expiresIn: "60m"
                 }
