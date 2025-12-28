@@ -12,7 +12,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
-import { Menu, LogOut, Briefcase, CalendarIcon, Trash, Pencil } from "lucide-react";
+import { Menu, LogOut, Briefcase, CalendarIcon, Trash, Pencil, FileText, Download } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -372,15 +372,67 @@ export function JobDashboard() {
 
                         <div className="grid gap-2">
                             <Label>Anexo (PDF)</Label>
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    type="file"
-                                    accept=".pdf"
-                                    onChange={handleFileChange}
-                                    className="cursor-pointer"
-                                />
-                            </div>
-                            <p className="text-xs text-muted-foreground">Upload de arquivos PDF para descrição da vaga ou outros documentos.</p>
+                            {editingJobId ? (
+                                <div className="flex items-center gap-2">
+                                    {jobs.find(j => j._id === editingJobId)?.resume ? (
+                                        <div className="flex items-center justify-between w-full p-3 border rounded-md bg-muted/50">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-background rounded-full border">
+                                                    <FileText className="h-5 w-5 text-primary" />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-medium truncate max-w-[200px]" title={`resume-${jobs.find(j => j._id === editingJobId)?.title}.pdf`}>
+                                                        {`resume-${jobs.find(j => j._id === editingJobId)?.title}.pdf`}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground uppercase">PDF</span>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="cursor-pointer hover:bg-background"
+                                                onClick={() => {
+                                                    const job = jobs.find(j => j._id === editingJobId);
+                                                    if (job?.resume) {
+                                                        try {
+                                                            const resumeData = job.resume.data || job.resume;
+                                                            const byteArray = new Uint8Array(resumeData);
+                                                            const blob = new Blob([byteArray], { type: 'application/pdf' });
+                                                            const url = window.URL.createObjectURL(blob);
+                                                            const link = document.createElement('a');
+                                                            link.href = url;
+                                                            link.setAttribute('download', `resume-${job.title}.pdf`);
+                                                            document.body.appendChild(link);
+                                                            link.click();
+                                                            link.remove();
+                                                        } catch (e) {
+                                                            console.error("Error downloading PDF", e);
+                                                            toast.error("Erro ao baixar o PDF.");
+                                                        }
+                                                    }
+                                                }}
+                                            >
+                                                <Download className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <span className="text-sm text-gray-500">Nenhum currículo anexado.</span>
+                                    )}
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            type="file"
+                                            accept=".pdf"
+                                            onChange={handleFileChange}
+                                            className="cursor-pointer"
+                                        />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Upload de arquivos PDF para descrição da vaga ou outros documentos.</p>
+                                </>
+                            )}
                         </div>
 
 
