@@ -7,12 +7,15 @@ import { ForbiddenError } from '../../errors/ForbiddenError';
 
 export class JobApplicationServices {
 
-    static async createJobApplication(data: JobApplicationType, userId: string) {
+    static async createJobApplication(data: JobApplicationType, resumePDF: any, userId: string) {
         try {
             const newJob = {
                 ...data,
-                user: userId
+                user: userId,
+                resume: resumePDF.buffer
             };
+
+            console.log(newJob)
 
             const jobApplication = await JobApplication.create(newJob);
 

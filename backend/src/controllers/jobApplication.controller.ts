@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import multer from "multer";
 import { JobApplicationServices } from "../services/JobApplication/jobApplication.service";
 import { JobApplicationBody } from "../models/JobApplication/jobApplication.schema";
 import { BadRequestError } from "../errors/BadRequestError";
@@ -10,10 +11,11 @@ export async function createJobApplication(req: Request, res: Response, next: Fu
         if (!validation.success) {
             throw new BadRequestError(`Erro de validação: ${validation.error.message}`);
         }
+        const resumePDF = req.file;
         const data = validation.data;
         const userId = (req as any).user.id;
 
-        const createdJob = await JobApplicationServices.createJobApplication(data, userId);
+        const createdJob = await JobApplicationServices.createJobApplication(data, resumePDF, userId);
         res.status(201).json(createdJob);
     } catch (e) {
         next(e);
