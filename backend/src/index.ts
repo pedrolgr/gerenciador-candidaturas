@@ -10,10 +10,25 @@ import cookieParser from "cookie-parser";
 import { authenticateUser } from './controllers/authController';
 import { logOutController } from './controllers/logOutController';
 import { errorHandler } from './middlewares/errorHandler';
+import multer from 'multer';
+import { InvalidFileTypeError } from './errors/InvalidFileTypeError';
 
 dotenv.config()
 
 const app = express();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 2 * 1024 * 1024
+  },
+  fileFilter(req, file, cb) {
+    if (file.mimetype !== "application/pdf") {
+      return cb(new InvalidFileTypeError("Apenas arquivos PDF são permitidos"));
+    }
+    cb(null, true);
+  }
+});
+
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true
@@ -33,7 +48,7 @@ try {
   });
 
 
-  app.post('/api/jobapplication', authenticateUser, createJobApplication);
+  app.post('/api/jobapplication', authenticateUser, upload.single("file"), createJobApplication);
   app.get('/api/jobapplication', authenticateUser, getJobApplications);
   app.delete('/api/jobapplication/:jobId', authenticateUser, deleteJobApplication);
   app.put('/api/jobapplication/:jobId', authenticateUser, updateJobApplication);

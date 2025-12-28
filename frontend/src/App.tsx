@@ -6,6 +6,7 @@ import { JobDashboard } from './routes/private/JobDashboard/JobDashboard'
 import { AuthProvider } from './context/AuthContext'
 import { PrivateRoute } from './routes/PrivateRoute'
 import { PublicRoute } from './routes/PublicRoute'
+import { Toaster } from './components/ui/sonner'
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,7 @@ function App() {
   return (
     <AuthProvider>
       <RouterProvider router={router} />
+      <Toaster />
     </AuthProvider>
   )
 }

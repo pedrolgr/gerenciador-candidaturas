@@ -12,7 +12,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
-import { Menu, LogOut, Briefcase, CalendarIcon, Trash, Pencil } from "lucide-react";
+import { Menu, LogOut, Briefcase, CalendarIcon, Trash, Pencil, FileText, Download } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,7 @@ import {
 import { FieldError } from "@/components/ui/field";
 
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 export function JobDashboard() {
     const [open, setOpen] = useState(true);
@@ -42,6 +43,7 @@ export function JobDashboard() {
         description: string;
         startDate: Date | undefined;
         endDate: Date | undefined;
+        file: File | null;
     }
 
     const initialFormState: FormState = {
@@ -50,6 +52,7 @@ export function JobDashboard() {
         description: "",
         startDate: undefined,
         endDate: undefined,
+        file: null,
     };
 
     const [form, setForm] = useState<FormState>(initialFormState);
@@ -79,6 +82,18 @@ export function JobDashboard() {
         }
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const selectedFile = e.target.files[0];
+            if (selectedFile.size > 2 * 1024 * 1024) {
+                toast.error("O arquivo deve ter no máximo 2MB.");
+                e.target.value = ""; // Clear the input
+                return;
+            }
+            setForm({ ...form, file: selectedFile });
+        }
+    };
+
     const handleOpenChange = (isOpen: boolean) => {
         setModalOpen(isOpen);
         if (!isOpen) {
@@ -101,20 +116,37 @@ export function JobDashboard() {
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
+            toast.error("Por favor, corrija os erros no formulário.");
             return;
         }
+
+        const formData = new FormData();
+        formData.append("title", form.title);
+        formData.append("company", form.company);
+        formData.append("description", form.description);
+        if (form.startDate) formData.append("startDate", form.startDate.toISOString());
+        if (form.endDate) formData.append("endDate", form.endDate.toISOString());
+        if (form.file) formData.append("file", form.file);
 
         try {
             let response: any;
             if (editingJobId) {
-                response = await axios.put(`http://localhost:3000/api/jobapplication/${editingJobId}`, form, { withCredentials: true });
+                response = await axios.put(`http://localhost:3000/api/jobapplication/${editingJobId}`, formData, {
+                    withCredentials: true,
+                    headers: { "Content-Type": "multipart/form-data" }
+                });
                 if (response.status === 200) {
                     setJobs(jobs.map(job => job._id === editingJobId ? response.data : job));
+                    toast.success("Vaga atualizada com sucesso!");
                 }
             } else {
-                response = await axios.post("http://localhost:3000/api/jobapplication", form, { withCredentials: true });
+                response = await axios.post("http://localhost:3000/api/jobapplication", formData, {
+                    withCredentials: true,
+                    headers: { "Content-Type": "multipart/form-data" }
+                });
                 if (response.status === 201) {
                     setJobs([...jobs, response.data]);
+                    toast.success("Vaga criada com sucesso!");
                 }
             }
 
@@ -124,7 +156,9 @@ export function JobDashboard() {
                 setErrors({});
                 setModalOpen(false);
             }
-        } catch (error) {
+        } catch (error: any) {
+            const message = error.response?.data?.message || "Erro ao salvar vaga.";
+            toast.error(message);
             console.error(error.response?.data?.message || error.message);
         }
     };
@@ -147,7 +181,10 @@ export function JobDashboard() {
             setJobs(jobs.filter(job => job._id !== jobToDelete._id));
             setDeleteModalOpen(false);
             setJobToDelete(null);
-        } catch (error) {
+            toast.success("Vaga excluída com sucesso!");
+        } catch (error: any) {
+            const message = error.response?.data?.message || "Erro ao excluir vaga.";
+            toast.error(message);
             console.error("Error deleting job", error);
         }
     };
@@ -160,6 +197,7 @@ export function JobDashboard() {
             description: job.description || "",
             startDate: new Date(job.startDate),
             endDate: job.endDate ? new Date(job.endDate) : undefined,
+            file: null, // Reset file on edit, user must re-upload if they want to change it
         });
         setModalOpen(true);
     };
@@ -330,6 +368,71 @@ export function JobDashboard() {
                                 </PopoverContent>
                             </Popover>
                             {errors.endDate && <FieldError errors={[{ message: errors.endDate }]} />}
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label>Anexo (PDF)</Label>
+                            {editingJobId ? (
+                                <div className="flex items-center gap-2">
+                                    {jobs.find(j => j._id === editingJobId)?.resume ? (
+                                        <div className="flex items-center justify-between w-full p-3 border rounded-md bg-muted/50">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-background rounded-full border">
+                                                    <FileText className="h-5 w-5 text-primary" />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-medium truncate max-w-[200px]" title={`resume-${jobs.find(j => j._id === editingJobId)?.title}.pdf`}>
+                                                        {`resume-${jobs.find(j => j._id === editingJobId)?.title}.pdf`}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground uppercase">PDF</span>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="cursor-pointer hover:bg-background"
+                                                onClick={() => {
+                                                    const job = jobs.find(j => j._id === editingJobId);
+                                                    if (job?.resume) {
+                                                        try {
+                                                            const resumeData = job.resume.data || job.resume;
+                                                            const byteArray = new Uint8Array(resumeData);
+                                                            const blob = new Blob([byteArray], { type: 'application/pdf' });
+                                                            const url = window.URL.createObjectURL(blob);
+                                                            const link = document.createElement('a');
+                                                            link.href = url;
+                                                            link.setAttribute('download', `resume-${job.title}.pdf`);
+                                                            document.body.appendChild(link);
+                                                            link.click();
+                                                            link.remove();
+                                                        } catch (e) {
+                                                            console.error("Error downloading PDF", e);
+                                                            toast.error("Erro ao baixar o PDF.");
+                                                        }
+                                                    }
+                                                }}
+                                            >
+                                                <Download className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <span className="text-sm text-gray-500">Nenhum currículo anexado.</span>
+                                    )}
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            type="file"
+                                            accept=".pdf"
+                                            onChange={handleFileChange}
+                                            className="cursor-pointer"
+                                        />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Upload de arquivos PDF para descrição da vaga ou outros documentos.</p>
+                                </>
+                            )}
                         </div>
 
 

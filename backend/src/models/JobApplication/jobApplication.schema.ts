@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+const ACCEPTED_MIME_TYPE = "application/pdf";
+
 export const JobApplicationBody = z.object({
     title: z.string().min(5).max(45)
         .transform((val) => {
@@ -16,7 +19,8 @@ export const JobApplicationBody = z.object({
         }),
     startDate: z.coerce.date(),
     endDate: z.coerce.date().optional(),
-    isClosed: z.coerce.date().optional()
+    isClosed: z.coerce.date().optional(),
+    resume: z.any()
 })
 
 export type JobApplicationType = z.infer<typeof JobApplicationBody>;

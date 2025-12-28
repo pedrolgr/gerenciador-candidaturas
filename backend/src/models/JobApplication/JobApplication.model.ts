@@ -8,6 +8,7 @@ const JobApplicationSchema = new Schema({
     startDate: { type: Date, required: true },
     endDate: { type: Date },
     isClosed: { type: Date },
+    resume: { type: Buffer },
     user: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 })
 
@@ -16,6 +17,8 @@ JobApplicationSchema.statics = {
         try {
             const jobApplication = new JobApplication(data);
             const savedJobApplication = await jobApplication.save();
+            console.log(jobApplication)
+            console.log(savedJobApplication)
 
             return savedJobApplication;
         } catch (e) {
@@ -26,7 +29,7 @@ JobApplicationSchema.statics = {
 
     async delete(data) {
         try {
-            await JobApplication.deleteOne({ _id: data })
+            return await JobApplication.deleteOne({ _id: data })
         } catch (e) {
             console.log(e)
             throw new Error("Error during delete job application");
