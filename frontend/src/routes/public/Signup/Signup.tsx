@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input"
 import { signUpSchema, type SignUpType } from "./SignupSchema"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner";
 
 export function Signup() {
 
@@ -43,17 +44,13 @@ export function Signup() {
         try {
             const response = await axios.post("http://localhost:3000/api/signup", newUser)
             console.log(response)
+            toast.success("Conta criada com sucesso!");
             navigate("/jobdashboard")
-            // Criar o componente para exibir na tela que o usuário foi cadastrado com sucesso
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                // Criar o componente para exibir na tela o erro durante cadastro do usuario
-            } else {
-                // Criar componente pra exibr na tela o a exceção inesperada
-            }
+        } catch (error: any) {
+            const message = error.response?.data?.message || "Erro inesperado ao criar conta.";
+            toast.error(message);
+            console.error("Signup error", error);
         }
-            
-        
     }
 
     return (

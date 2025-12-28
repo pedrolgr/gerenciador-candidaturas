@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input"
 import { signInSchema, type SignInType } from "./SigninSchema"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { zodResolver } from "@hookform/resolvers/zod"
-
+import { toast } from "sonner"
 
 
 export function Signin() {
@@ -32,6 +32,7 @@ export function Signin() {
 
     const { handleSubmit } = form;
 
+
     const onSubmit: SubmitHandler<SignInType> = async (data) => {
         try {
             const loginCredentials = {
@@ -42,13 +43,16 @@ export function Signin() {
             // Using context for login
             const success = await login(loginCredentials);
             if (success) {
+                toast.success("Login realizado com sucesso!");
                 navigate("/jobdashboard");
             } else {
-
+                toast.error("Erro ao realizar login. Verifique suas credenciais.");
                 console.error("Login failed via context");
             }
 
-        } catch (error) {
+        } catch (error: any) {
+            const message = error.response?.data?.message || "Erro inesperado durante o login.";
+            toast.error(message);
             console.error("Unexpected error during login", error);
         }
     }
