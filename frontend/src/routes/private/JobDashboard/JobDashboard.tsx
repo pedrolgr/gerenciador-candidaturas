@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
     Dialog,
@@ -74,7 +75,7 @@ export function JobDashboard() {
         fetchJobs();
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const name = e.target.name as keyof FormState;
         setForm({ ...form, [name]: e.target.value });
         if (errors[name]) {
@@ -107,10 +108,10 @@ export function JobDashboard() {
     const handleSubmit = async () => {
         const newErrors: Partial<Record<keyof FormState, string>> = {};
         if (!form.title) newErrors.title = "Título é obrigatório";
-        if (!form.startDate) newErrors.startDate = "Data inicial é obrigatória";
+        if (!form.startDate) newErrors.startDate = "Data publicada em é obrigatória";
         if (form.endDate && form.startDate) {
             if (form.endDate < form.startDate) {
-                newErrors.endDate = "Data final deve ser posterior à inicial";
+                newErrors.endDate = "Data encerrada em deve ser posterior à inicial";
             }
         }
 
@@ -300,12 +301,12 @@ export function JobDashboard() {
 
                         <div className="grid gap-2">
                             <Label>Descrição</Label>
-                            <Input name="description" value={form.description} onChange={handleChange} />
+                            <Textarea name="description" value={form.description} onChange={handleChange} placeholder="Descreva os detalhes da vaga..." maxLength={200} />
                         </div>
 
 
                         <div className="grid gap-2">
-                            <Label>Data inicial*</Label>
+                            <Label>Vaga publicada em*</Label>
                             <Popover open={isStartDateOpen} onOpenChange={setIsStartDateOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -338,7 +339,7 @@ export function JobDashboard() {
 
 
                         <div className="grid gap-2">
-                            <Label>Data final</Label>
+                            <Label>Vaga encerrada em</Label>
                             <Popover open={isEndDateOpen} onOpenChange={setIsEndDateOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
