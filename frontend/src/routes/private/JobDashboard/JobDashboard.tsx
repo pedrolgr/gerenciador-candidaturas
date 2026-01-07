@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
     Dialog,
@@ -74,7 +75,7 @@ export function JobDashboard() {
         fetchJobs();
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const name = e.target.name as keyof FormState;
         setForm({ ...form, [name]: e.target.value });
         if (errors[name]) {
@@ -300,7 +301,7 @@ export function JobDashboard() {
 
                         <div className="grid gap-2">
                             <Label>Descrição</Label>
-                            <Input name="description" value={form.description} onChange={handleChange} />
+                            <Textarea name="description" value={form.description} onChange={handleChange} placeholder="Descreva os detalhes da vaga..." maxLength={200} />
                         </div>
 
 
