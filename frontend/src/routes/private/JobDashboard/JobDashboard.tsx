@@ -107,10 +107,10 @@ export function JobDashboard() {
     const handleSubmit = async () => {
         const newErrors: Partial<Record<keyof FormState, string>> = {};
         if (!form.title) newErrors.title = "Título é obrigatório";
-        if (!form.startDate) newErrors.startDate = "Data inicial é obrigatória";
+        if (!form.startDate) newErrors.startDate = "Data publicada em é obrigatória";
         if (form.endDate && form.startDate) {
             if (form.endDate < form.startDate) {
-                newErrors.endDate = "Data final deve ser posterior à inicial";
+                newErrors.endDate = "Data encerrada em deve ser posterior à inicial";
             }
         }
 
@@ -305,7 +305,7 @@ export function JobDashboard() {
 
 
                         <div className="grid gap-2">
-                            <Label>Data inicial*</Label>
+                            <Label>Vaga publicada em*</Label>
                             <Popover open={isStartDateOpen} onOpenChange={setIsStartDateOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -338,7 +338,7 @@ export function JobDashboard() {
 
 
                         <div className="grid gap-2">
-                            <Label>Data final</Label>
+                            <Label>Vaga encerrada em</Label>
                             <Popover open={isEndDateOpen} onOpenChange={setIsEndDateOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
