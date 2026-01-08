@@ -44,7 +44,7 @@ export function JobDashboard() {
         title: string;
         company: string;
         description: string;
-        stacks: string[];
+        stacks: string;
         startDate: Date | undefined;
         endDate: Date | undefined;
         file: File | null;
@@ -54,7 +54,7 @@ export function JobDashboard() {
         title: "",
         company: "",
         description: "",
-        stacks: [],
+        stacks: "",
         startDate: undefined,
         endDate: undefined,
         file: null,
@@ -63,9 +63,23 @@ export function JobDashboard() {
     const [form, setForm] = useState<FormState>(initialFormState);
     const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
 
-    const techStackOptions = [
-        { value: "loremIpsum", label: "Lorem Ipsum" },
-    ];
+    const [techStackOptions, setTechStackOptions] = useState<{ value: string; label: string }[]>([]);
+
+    useEffect(() => {
+        const fetchStacks = async () => {
+            try {
+                const response = await axios.get("http://localhost:3000/api/stacks", { withCredentials: true });
+                const formattedOptions = response.data.map((stack: any) => ({
+                    value: stack.stackValue,
+                    label: stack.stackLabel
+                }));
+                setTechStackOptions(formattedOptions);
+            } catch (error) {
+                console.error("Error fetching stacks", error);
+            }
+        };
+        fetchStacks();
+    }, []);
 
     const [jobs, setJobs] = useState<any[]>([]);
 
@@ -94,7 +108,7 @@ export function JobDashboard() {
             const selectedFile = e.target.files[0];
             if (selectedFile.size > 2 * 1024 * 1024) {
                 toast.error("O arquivo deve ter no máximo 2MB.");
-                e.target.value = ""; // Clear the input
+                e.target.value = "";
                 return;
             }
             setForm({ ...form, file: selectedFile });
@@ -131,7 +145,7 @@ export function JobDashboard() {
         formData.append("title", form.title);
         formData.append("company", form.company);
         formData.append("description", form.description);
-        formData.append("stacks", JSON.stringify(form.stacks));
+        formData.append("stacks", form.stacks);
         if (form.startDate) formData.append("startDate", form.startDate.toISOString());
         if (form.endDate) formData.append("endDate", form.endDate.toISOString());
         if (form.file) formData.append("file", form.file);
@@ -148,6 +162,7 @@ export function JobDashboard() {
                     toast.success("Vaga atualizada com sucesso!");
                 }
             } else {
+                console.log(Object.fromEntries(formData.entries()));
                 response = await axios.post("http://localhost:3000/api/jobapplication", formData, {
                     withCredentials: true,
                     headers: { "Content-Type": "multipart/form-data" }
@@ -206,7 +221,7 @@ export function JobDashboard() {
             stacks: job.stacks || [],
             startDate: new Date(job.startDate),
             endDate: job.endDate ? new Date(job.endDate) : undefined,
-            file: null, // Reset file on edit, user must re-upload if they want to change it
+            file: null,
         });
         setModalOpen(true);
     };
