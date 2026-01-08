@@ -51,7 +51,7 @@ try {
   app.post('/api/jobapplication', authenticateUser, upload.single("file"), createJobApplication);
   app.get('/api/jobapplication', authenticateUser, getJobApplications);
   app.delete('/api/jobapplication/:jobId', authenticateUser, deleteJobApplication);
-  app.put('/api/jobapplication/:jobId', authenticateUser, updateJobApplication);
+  app.put('/api/jobapplication/:jobId', authenticateUser, upload.none(), updateJobApplication);
 
   app.post('/api/signup', signUpController);
   app.post('/api/signin', signInController);

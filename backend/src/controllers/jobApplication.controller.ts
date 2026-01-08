@@ -11,6 +11,7 @@ export async function createJobApplication(req: Request, res: Response, next: Fu
         if (!validation.success) {
             throw new BadRequestError(`Erro de validação: ${validation.error.message}`);
         }
+
         const resumePDF = req.file;
         const data = validation.data;
         const userId = (req as any).user.id;

@@ -9,13 +9,12 @@ export class JobApplicationServices {
 
     static async createJobApplication(data: JobApplicationType, resumePDF: any, userId: string) {
         try {
-            const newJob = {
+            console.log(data)
+            let newJob = {
                 ...data,
                 user: userId,
-                resume: resumePDF.buffer
+                resume: resumePDF?.buffer
             };
-
-            console.log(newJob)
 
             const jobApplication = await JobApplication.create(newJob);
 
@@ -33,6 +32,7 @@ export class JobApplicationServices {
 
     static async updateJobApplication(data: JobApplicationType, userId: string) {
         try {
+
             // @ts-ignore
             const searchJob = await JobApplication.findJobById(data.jobId)
             const jobUserId = searchJob.user[0].toString();

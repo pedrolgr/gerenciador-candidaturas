@@ -20,7 +20,7 @@ export const JobApplicationBody = z.object({
     startDate: z.coerce.date(),
     endDate: z.coerce.date().optional(),
     isClosed: z.coerce.date().optional(),
-    stacks: z.array(z.string()),
+    stacks: z.string().transform((val) => val ? val.split(",").map(s => s.trim()) : []),
     resume: z.any()
 })
 

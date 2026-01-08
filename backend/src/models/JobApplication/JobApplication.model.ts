@@ -45,7 +45,10 @@ JobApplicationSchema.statics = {
                     title: data.title,
                     company: data.company,
                     description: data.description,
-                    startDate: data.startDate
+                    startDate: data.startDate,
+                    endDate: data.endDate,
+                    isClosed: data.isClosed,
+                    stacks: data.stacks
                 }
             },
             { new: true, runValidators: true }
