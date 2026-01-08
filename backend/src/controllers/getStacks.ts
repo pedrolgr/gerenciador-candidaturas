@@ -1,13 +1,18 @@
 import type { Request, Response } from "express";
 import mongoose from 'mongoose';
 
-export async function getStacks(req: Request, res: Response) {
-    const stacks = mongoose.connection.collection('jobstacks');
-    const docs = await stacks.find({}).toArray();
+import { StackFetchError } from "../errors/StackFetchError";
 
+export async function getStacks(req: Request, res: Response, next: Function) {
+    try {
+        const stacks = mongoose.connection.collection('jobstacks');
+        const docs = await stacks.find({}).toArray();
 
-    console.log(docs)
-    res.send(docs)
+        if (docs.length === 0) throw new StackFetchError("Não foi possível buscar nenhuma Stack do Banco de Dados.")
 
-    return docs;
+        res.status(200).json(docs);
+
+    } catch (error) {
+        next(error);
+    }
 }

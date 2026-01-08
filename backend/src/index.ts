@@ -54,7 +54,7 @@ try {
   app.delete('/api/jobapplication/:jobId', authenticateUser, deleteJobApplication);
   app.put('/api/jobapplication/:jobId', authenticateUser, upload.none(), updateJobApplication);
 
-  app.get('/api/stacks', getStacks);
+  app.get('/api/stacks', authenticateUser, getStacks);
 
   app.post('/api/signup', signUpController);
   app.post('/api/signin', signInController);
