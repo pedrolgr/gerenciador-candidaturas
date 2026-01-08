@@ -24,6 +24,8 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { FieldError } from "@/components/ui/field";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Badge } from "@/components/ui/badge";
 
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
@@ -42,6 +44,7 @@ export function JobDashboard() {
         title: string;
         company: string;
         description: string;
+        stacks: string[];
         startDate: Date | undefined;
         endDate: Date | undefined;
         file: File | null;
@@ -51,6 +54,7 @@ export function JobDashboard() {
         title: "",
         company: "",
         description: "",
+        stacks: [],
         startDate: undefined,
         endDate: undefined,
         file: null,
@@ -59,7 +63,9 @@ export function JobDashboard() {
     const [form, setForm] = useState<FormState>(initialFormState);
     const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
 
-
+    const techStackOptions = [
+        { value: "loremIpsum", label: "Lorem Ipsum" },
+    ];
 
     const [jobs, setJobs] = useState<any[]>([]);
 
@@ -125,6 +131,7 @@ export function JobDashboard() {
         formData.append("title", form.title);
         formData.append("company", form.company);
         formData.append("description", form.description);
+        formData.append("stacks", JSON.stringify(form.stacks));
         if (form.startDate) formData.append("startDate", form.startDate.toISOString());
         if (form.endDate) formData.append("endDate", form.endDate.toISOString());
         if (form.file) formData.append("file", form.file);
@@ -196,6 +203,7 @@ export function JobDashboard() {
             title: job.title,
             company: job.company || "",
             description: job.description || "",
+            stacks: job.stacks || [],
             startDate: new Date(job.startDate),
             endDate: job.endDate ? new Date(job.endDate) : undefined,
             file: null, // Reset file on edit, user must re-upload if they want to change it
@@ -266,6 +274,15 @@ export function JobDashboard() {
                                     </div>
                                     <h2 className="text-xl font-bold mb-2 pr-8">{job.title}</h2>
                                     <p className="text-gray-600 mb-4">{job.company}</p>
+                                    {job.stacks && job.stacks.length > 0 && (
+                                        <div className="flex flex-wrap gap-1 mb-3">
+                                            {job.stacks.map((stack: string) => (
+                                                <Badge key={stack} variant="secondary" className="text-xs">
+                                                    {techStackOptions.find(s => s.value === stack)?.label || stack}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    )}
                                     <p className="text-sm text-gray-500 mb-4">{job.description}</p>
                                     <div className="flex flex-col gap-1 text-sm text-gray-400">
                                         <span>Início: {format(new Date(job.startDate), "dd/MM/yyyy")}</span>
@@ -298,6 +315,16 @@ export function JobDashboard() {
                             <Input name="company" value={form.company} onChange={handleChange} />
                         </div>
 
+                        <div className="grid gap-2">
+                            <Label>Tecnologias/Stacks</Label>
+                            <MultiSelect
+                                options={techStackOptions}
+                                selected={form.stacks}
+                                onChange={(stacks) => setForm({ ...form, stacks })}
+                                placeholder="Selecione as tecnologias..."
+                                emptyText="Nenhuma tecnologia encontrada."
+                            />
+                        </div>
 
                         <div className="grid gap-2">
                             <Label>Descrição</Label>

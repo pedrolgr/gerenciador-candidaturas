@@ -9,6 +9,7 @@ const JobApplicationSchema = new Schema({
     endDate: { type: Date },
     isClosed: { type: Date },
     resume: { type: Buffer },
+    stacks: { type: Array },
     user: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 })
 
