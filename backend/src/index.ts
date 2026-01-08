@@ -12,6 +12,7 @@ import { logOutController } from './controllers/logOutController';
 import { errorHandler } from './middlewares/errorHandler';
 import multer from 'multer';
 import { InvalidFileTypeError } from './errors/InvalidFileTypeError';
+import { getStacks } from './controllers/getStacks';
 
 dotenv.config()
 
@@ -52,6 +53,8 @@ try {
   app.get('/api/jobapplication', authenticateUser, getJobApplications);
   app.delete('/api/jobapplication/:jobId', authenticateUser, deleteJobApplication);
   app.put('/api/jobapplication/:jobId', authenticateUser, upload.none(), updateJobApplication);
+
+  app.get('/api/stacks', getStacks);
 
   app.post('/api/signup', signUpController);
   app.post('/api/signin', signInController);
