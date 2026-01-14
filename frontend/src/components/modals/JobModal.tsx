@@ -22,6 +22,7 @@ import {
 import { FieldError } from "@/components/ui/field";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { toast } from "sonner";
+import { JobStacksSelect } from "../JobStacksSelect";
 
 interface JobModalProps {
     modalOpen: boolean;
@@ -84,12 +85,10 @@ export function JobModal({
 
                     <div className="grid gap-2">
                         <Label>Tecnologias/Stacks</Label>
-                        <MultiSelect
-                            options={techStackOptions}
-                            selected={form.stacks}
-                            onChange={(stacks) => setForm({ ...form, stacks })}
-                            placeholder="Selecione as tecnologias..."
-                            emptyText="Nenhuma tecnologia encontrada."
+                        <JobStacksSelect 
+                        techStackOptions={techStackOptions}
+                        form={form}
+                        setForm={setForm}
                         />
                     </div>
 
