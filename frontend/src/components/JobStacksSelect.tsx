@@ -19,7 +19,7 @@ export function JobStacksSelect({
             selected={form.stacks}
             onChange={(stacks) => setForm({ ...form, stacks })}
             placeholder="Selecione as tecnologias..."
-            emptyText="Nenhuma tecnologia encontrada."
+            emptyText="Nenhuma tecnologia encontrada"
         />
     )
 }
