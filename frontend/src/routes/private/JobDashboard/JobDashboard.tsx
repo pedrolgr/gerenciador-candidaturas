@@ -12,14 +12,11 @@ import {
 } from "@/components/ui/dialog";
 import { Menu, LogOut, Briefcase, Trash, Pencil } from "lucide-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { JobModal } from "@/components/modals/JobModal";
-import { JobStacksSelect } from "@/components/JobStacksSelect";
 import { MultiSelect } from "@/components/ui/multi-select";
 
 export function JobDashboard() {
@@ -36,7 +33,7 @@ export function JobDashboard() {
         title: string;
         company: string;
         description: string;
-        stacks: string;
+        stacks: string[];
         startDate: Date | undefined;
         endDate: Date | undefined;
         file: File | null;
@@ -46,7 +43,7 @@ export function JobDashboard() {
         title: "",
         company: "",
         description: "",
-        stacks: "",
+        stacks: [],
         startDate: undefined,
         endDate: undefined,
         file: null,
@@ -57,6 +54,9 @@ export function JobDashboard() {
 
     const [techStackOptions, setTechStackOptions] = useState<{ value: string; label: string }[]>([]);
 
+    const [techStackOptionsFilter, setTechStackOptionsFilter] = useState<{ value: string; label: string }[]>([]);
+    const [techStackSelectFilter, setTechStackSelectFilter] = useState<string[]>([]);
+
     useEffect(() => {
         const fetchStacks = async () => {
             try {
@@ -66,6 +66,7 @@ export function JobDashboard() {
                     label: stack.stackLabel
                 }));
                 setTechStackOptions(formattedOptions);
+                setTechStackOptionsFilter(formattedOptions);
             } catch (error) {
                 console.error("Error fetching stacks", error);
             }
@@ -74,6 +75,7 @@ export function JobDashboard() {
     }, []);
 
     const [jobs, setJobs] = useState<any[]>([]);
+    console.log(jobs)
 
     useEffect(() => {
         const fetchJobs = async () => {
@@ -262,9 +264,9 @@ export function JobDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
 
                     <MultiSelect
-                        options={techStackOptions}
-                        selected={form.stacks}
-                        onChange={(stacks) => setForm({ ...form, stacks })}
+                        options={techStackOptionsFilter}
+                        selected={techStackSelectFilter}
+                        onChange={setTechStackSelectFilter}
                         placeholder="Selecione as tecnologias..."
                         emptyText="Nenhuma tecnologia encontrada."
                     />

@@ -22,7 +22,6 @@ import {
 import { FieldError } from "@/components/ui/field";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { toast } from "sonner";
-import { JobStacksSelect } from "../JobStacksSelect";
 
 interface JobModalProps {
     modalOpen: boolean;
