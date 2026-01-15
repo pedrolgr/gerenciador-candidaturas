@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { JobModal } from "@/components/modals/JobModal";
+import { JobStacksSelect } from "@/components/JobStacksSelect";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 export function JobDashboard() {
     const [open, setOpen] = useState(true);
@@ -256,8 +258,17 @@ export function JobDashboard() {
                     </h1>
                     <Button className="cursor-pointer" onClick={() => setModalOpen(true)}>+ Cadastrar vaga</Button>
                 </div>
+                <h2>Filtros</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
 
-
+                    <MultiSelect
+                        options={techStackOptions}
+                        selected={form.stacks}
+                        onChange={(stacks) => setForm({ ...form, stacks })}
+                        placeholder="Selecione as tecnologias..."
+                        emptyText="Nenhuma tecnologia encontrada."
+                    />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {jobs.length === 0 ? (
                         <Card className="col-span-full">

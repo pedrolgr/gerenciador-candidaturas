@@ -85,10 +85,12 @@ export function JobModal({
 
                     <div className="grid gap-2">
                         <Label>Tecnologias/Stacks</Label>
-                        <JobStacksSelect 
-                        techStackOptions={techStackOptions}
-                        form={form}
-                        setForm={setForm}
+                        <MultiSelect
+                            options={techStackOptions}
+                            selected={form.stacks}
+                            onChange={(stacks) => setForm({ ...form, stacks })}
+                            placeholder="Selecione as tecnologias..."
+                            emptyText="Nenhuma tecnologia encontrada."
                         />
                     </div>
 
