@@ -3,9 +3,6 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import {
     Dialog,
     DialogContent,
@@ -13,22 +10,14 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
-import { Menu, LogOut, Briefcase, CalendarIcon, Trash, Pencil, FileText, Download } from "lucide-react";
+import { Menu, LogOut, Briefcase, Trash, Pencil } from "lucide-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
-import { FieldError } from "@/components/ui/field";
-import { MultiSelect } from "@/components/ui/multi-select";
 import { Badge } from "@/components/ui/badge";
 
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import { JobModal } from "@/components/modals/JobModal";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 export function JobDashboard() {
     const [open, setOpen] = useState(true);
@@ -44,7 +33,7 @@ export function JobDashboard() {
         title: string;
         company: string;
         description: string;
-        stacks: string;
+        stacks: string[];
         startDate: Date | undefined;
         endDate: Date | undefined;
         file: File | null;
@@ -54,7 +43,7 @@ export function JobDashboard() {
         title: "",
         company: "",
         description: "",
-        stacks: "",
+        stacks: [],
         startDate: undefined,
         endDate: undefined,
         file: null,
@@ -65,6 +54,10 @@ export function JobDashboard() {
 
     const [techStackOptions, setTechStackOptions] = useState<{ value: string; label: string }[]>([]);
 
+    const [techStackOptionsFilter, setTechStackOptionsFilter] = useState<{ value: string; label: string }[]>([]);
+    const [techStackSelectedFilter, setTechStackSelectedFilter] = useState<string[]>([]);
+
+
     useEffect(() => {
         const fetchStacks = async () => {
             try {
@@ -74,6 +67,7 @@ export function JobDashboard() {
                     label: stack.stackLabel
                 }));
                 setTechStackOptions(formattedOptions);
+                setTechStackOptionsFilter(formattedOptions);
             } catch (error) {
                 console.error("Error fetching stacks", error);
             }
@@ -226,7 +220,6 @@ export function JobDashboard() {
         setModalOpen(true);
     };
 
-
     return (
         <div className="flex h-screen w-full bg-background">
             <aside
@@ -266,8 +259,17 @@ export function JobDashboard() {
                     </h1>
                     <Button className="cursor-pointer" onClick={() => setModalOpen(true)}>+ Cadastrar vaga</Button>
                 </div>
+                <h2>Filtros</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
 
-
+                    <MultiSelect
+                        options={techStackOptionsFilter}
+                        selected={techStackSelectedFilter}
+                        onChange={setTechStackSelectedFilter}
+                        placeholder="Selecione as tecnologias..."
+                        emptyText="Nenhuma tecnologia encontrada."
+                    />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {jobs.length === 0 ? (
                         <Card className="col-span-full">
@@ -275,7 +277,7 @@ export function JobDashboard() {
                                 Nenhuma vaga cadastrada.
                             </CardContent>
                         </Card>
-                    ) : (
+                    ) : (techStackSelectedFilter.length === 0 ? (
                         jobs.map((job) => (
                             <Card key={job._id}>
                                 <CardContent className="p-6 relative">
@@ -306,191 +308,61 @@ export function JobDashboard() {
                                 </CardContent>
                             </Card>
                         ))
-                    )}
+                    ) : (
+                        jobs.filter((j) =>
+                            j.stacks.some(stack => techStackSelectedFilter.includes(stack)))
+                            .map((job) => (
+                                <Card key={job._id}>
+                                    <CardContent className="p-6 relative">
+                                        <div className="absolute top-4 right-4 flex gap-2">
+                                            <div className="cursor-pointer text-gray-500 hover:text-blue-500" onClick={() => handleEditClick(job)}>
+                                                <Pencil className="h-5 w-5" />
+                                            </div>
+                                            <div className="cursor-pointer text-gray-500 hover:text-red-500" onClick={() => handleDeleteClick(job)}>
+                                                <Trash className="h-5 w-5" />
+                                            </div>
+                                        </div>
+                                        <h2 className="text-xl font-bold mb-2 pr-8">{job.title}</h2>
+                                        <p className="text-gray-600 mb-4">{job.company}</p>
+                                        {job.stacks && job.stacks.length > 0 && (
+                                            <div className="flex flex-wrap gap-1 mb-3">
+                                                {job.stacks.map((stack: string) => (
+                                                    <Badge key={stack} variant="secondary" className="text-xs">
+                                                        {techStackOptions.find(s => s.value === stack)?.label || stack}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        )}
+                                        <p className="text-sm text-gray-500 mb-4">{job.description}</p>
+                                        <div className="flex flex-col gap-1 text-sm text-gray-400">
+                                            <span>Início: {format(new Date(job.startDate), "dd/MM/yyyy")}</span>
+                                            {job.endDate && <span>Fim: {format(new Date(job.endDate), "dd/MM/yyyy")}</span>}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))
+                    ))}
                 </div>
             </main>
 
-            <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
-                <DialogContent className="max-w-lg">
-                    <DialogHeader>
-                        <DialogTitle>{editingJobId ? "Editar vaga" : "Cadastrar vaga"}</DialogTitle>
-                    </DialogHeader>
-
-
-                    <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <Label>Título*</Label>
-                            <Input name="title" value={form.title} onChange={handleChange} required />
-                            {errors.title && <FieldError errors={[{ message: errors.title }]} />}
-                        </div>
-
-
-                        <div className="grid gap-2">
-                            <Label>Empresa</Label>
-                            <Input name="company" value={form.company} onChange={handleChange} />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label>Tecnologias/Stacks</Label>
-                            <MultiSelect
-                                options={techStackOptions}
-                                selected={form.stacks}
-                                onChange={(stacks) => setForm({ ...form, stacks })}
-                                placeholder="Selecione as tecnologias..."
-                                emptyText="Nenhuma tecnologia encontrada."
-                            />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label>Descrição</Label>
-                            <Textarea name="description" value={form.description} onChange={handleChange} placeholder="Descreva os detalhes da vaga..." maxLength={200} />
-                        </div>
-
-
-                        <div className="grid gap-2">
-                            <Label>Vaga publicada em*</Label>
-                            <Popover open={isStartDateOpen} onOpenChange={setIsStartDateOpen}>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-full justify-start text-left font-normal cursor-pointer",
-                                            !form.startDate && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {form.startDate ? format(form.startDate, "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={form.startDate}
-                                        onSelect={(date) => {
-                                            setForm({ ...form, startDate: date });
-                                            if (date) setErrors({ ...errors, startDate: undefined });
-                                            setIsStartDateOpen(false);
-                                        }}
-                                        initialFocus
-                                        locale={ptBR}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            {errors.startDate && <FieldError errors={[{ message: errors.startDate }]} />}
-                        </div>
-
-
-                        <div className="grid gap-2">
-                            <Label>Vaga encerrada em</Label>
-                            <Popover open={isEndDateOpen} onOpenChange={setIsEndDateOpen}>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-full justify-start text-left font-normal cursor-pointer",
-                                            !form.endDate && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {form.endDate ? format(form.endDate, "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={form.endDate}
-                                        onSelect={(date) => {
-                                            setForm({ ...form, endDate: date });
-                                            if (date) setErrors({ ...errors, endDate: undefined });
-                                            setIsEndDateOpen(false);
-                                        }}
-                                        disabled={(date) => !!form.startDate && date < form.startDate}
-                                        initialFocus
-                                        locale={ptBR}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            {errors.endDate && <FieldError errors={[{ message: errors.endDate }]} />}
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label>Anexo (PDF)</Label>
-                            {editingJobId ? (
-                                <div className="flex items-center gap-2">
-                                    {jobs.find(j => j._id === editingJobId)?.resume ? (
-                                        <div className="flex items-center justify-between w-full p-3 border rounded-md bg-muted/50">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-background rounded-full border">
-                                                    <FileText className="h-5 w-5 text-primary" />
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-medium truncate max-w-[200px]" title={`resume-${jobs.find(j => j._id === editingJobId)?.title}.pdf`}>
-                                                        {`resume-${jobs.find(j => j._id === editingJobId)?.title}.pdf`}
-                                                    </span>
-                                                    <span className="text-xs text-muted-foreground uppercase">PDF</span>
-                                                </div>
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                className="cursor-pointer hover:bg-background"
-                                                onClick={() => {
-                                                    const job = jobs.find(j => j._id === editingJobId);
-                                                    if (job?.resume) {
-                                                        try {
-                                                            const resumeData = job.resume.data || job.resume;
-                                                            const byteArray = new Uint8Array(resumeData);
-                                                            const blob = new Blob([byteArray], { type: 'application/pdf' });
-                                                            const url = window.URL.createObjectURL(blob);
-                                                            const link = document.createElement('a');
-                                                            link.href = url;
-                                                            link.setAttribute('download', `resume-${job.title}.pdf`);
-                                                            document.body.appendChild(link);
-                                                            link.click();
-                                                            link.remove();
-                                                        } catch (e) {
-                                                            console.error("Error downloading PDF", e);
-                                                            toast.error("Erro ao baixar o PDF.");
-                                                        }
-                                                    }
-                                                }}
-                                            >
-                                                <Download className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    ) : (
-                                        <span className="text-sm text-gray-500">Nenhum currículo anexado.</span>
-                                    )}
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="flex items-center gap-2">
-                                        <Input
-                                            type="file"
-                                            accept=".pdf"
-                                            onChange={handleFileChange}
-                                            className="cursor-pointer"
-                                        />
-                                    </div>
-                                    <p className="text-xs text-muted-foreground">Upload de arquivos PDF para descrição da vaga ou outros documentos.</p>
-                                </>
-                            )}
-                        </div>
-
-
-                        <div className="grid gap-2 opacity-50 cursor-not-allowed">
-                            <Label>Encerrada automaticamente</Label>
-                            <Input disabled placeholder="Calculado pelo sistema" />
-                        </div>
-                    </div>
-
-
-                    <DialogFooter>
-                        <Button className="cursor-pointer" onClick={handleSubmit}>Salvar</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <JobModal
+                modalOpen={modalOpen}
+                handleOpenChange={handleOpenChange}
+                editingJobId={editingJobId}
+                form={form}
+                handleChange={handleChange}
+                handleFileChange={handleFileChange}
+                handleSubmit={handleSubmit}
+                techStackOptions={techStackOptions}
+                errors={errors}
+                isStartDateOpen={isStartDateOpen}
+                setIsStartDateOpen={setIsStartDateOpen}
+                isEndDateOpen={isEndDateOpen}
+                setIsEndDateOpen={setIsEndDateOpen}
+                setForm={setForm}
+                setErrors={setErrors}
+                jobs={jobs}
+            />
 
             <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
                 <DialogContent>
