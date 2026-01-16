@@ -62,6 +62,24 @@ export function JobDashboard() {
 
     const [jobs, setJobs] = useState<any[]>([]);
 
+    const filteredJob = useMemo(() => {
+        if(techStackSelectedFilter.length === 0 && companiesSelectedFilter.length === 0) {
+            return jobs;
+        }
+        
+        let result = jobs;
+
+        if(techStackSelectedFilter.length > 0) {
+            result = result.filter(job => job.stacks.some(stack => techStackSelectedFilter.includes(stack)))
+        }
+
+        if(companiesSelectedFilter.length > 0) {
+            result = result.filter(job => job.company.includes(companiesSelectedFilter))
+        }
+
+        return result;
+    }, [jobs, techStackSelectedFilter, companiesSelectedFilter])
+
     useEffect(() => {
         const fetchStacks = async () => {
             try {
@@ -174,7 +192,6 @@ export function JobDashboard() {
                     toast.success("Vaga atualizada com sucesso!");
                 }
             } else {
-                console.log(Object.fromEntries(formData.entries()));
                 response = await axios.post("http://localhost:3000/api/jobapplication", formData, {
                     withCredentials: true,
                     headers: { "Content-Type": "multipart/form-data" }
@@ -238,7 +255,6 @@ export function JobDashboard() {
         setModalOpen(true);
     };
 
-
     return (
         <div className="flex h-screen w-full bg-background">
             <aside
@@ -297,7 +313,7 @@ export function JobDashboard() {
 
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {jobs.length === 0 ? (
+                        {jobs.length === 0 ? (
                         <Card className="col-span-full">
                             <CardContent className="p-10 text-muted-foreground text-center">
                                 Nenhuma vaga cadastrada.
@@ -367,7 +383,8 @@ export function JobDashboard() {
                                     </CardContent>
                                 </Card>
                             ))
-                    ))}
+                    ))
+                    }
                 </div>
             </main>
 
