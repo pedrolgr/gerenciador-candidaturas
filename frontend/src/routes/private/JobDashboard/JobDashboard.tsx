@@ -313,14 +313,13 @@ export function JobDashboard() {
 
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {jobs.length === 0 ? (
-                        <Card className="col-span-full">
+                        {filteredJob.length === 0 ? (
+                <Card className="col-span-full">
                             <CardContent className="p-10 text-muted-foreground text-center">
                                 Nenhuma vaga cadastrada.
                             </CardContent>
                         </Card>
-                    ) : (techStackSelectedFilter.length === 0 ? (
-                        jobs.map((job) => (
+                        ) : filteredJob.map(job => (
                             <Card key={job._id}>
                                 <CardContent className="p-6 relative">
                                     <div className="absolute top-4 right-4 flex gap-2">
@@ -349,42 +348,7 @@ export function JobDashboard() {
                                     </div>
                                 </CardContent>
                             </Card>
-                        ))
-                    ) : (
-                        jobs.filter((j) =>
-                            j.stacks.some(stack => techStackSelectedFilter.includes(stack)))
-                            .map((job) => (
-                                <Card key={job._id}>
-                                    <CardContent className="p-6 relative">
-                                        <div className="absolute top-4 right-4 flex gap-2">
-                                            <div className="cursor-pointer text-gray-500 hover:text-blue-500" onClick={() => handleEditClick(job)}>
-                                                <Pencil className="h-5 w-5" />
-                                            </div>
-                                            <div className="cursor-pointer text-gray-500 hover:text-red-500" onClick={() => handleDeleteClick(job)}>
-                                                <Trash className="h-5 w-5" />
-                                            </div>
-                                        </div>
-                                        <h2 className="text-xl font-bold mb-2 pr-8">{job.title}</h2>
-                                        <p className="text-gray-600 mb-4">{job.company}</p>
-                                        {job.stacks && job.stacks.length > 0 && (
-                                            <div className="flex flex-wrap gap-1 mb-3">
-                                                {job.stacks.map((stack: string) => (
-                                                    <Badge key={stack} variant="secondary" className="text-xs">
-                                                        {techStackOptions.find(s => s.value === stack)?.label || stack}
-                                                    </Badge>
-                                                ))}
-                                            </div>
-                                        )}
-                                        <p className="text-sm text-gray-500 mb-4">{job.description}</p>
-                                        <div className="flex flex-col gap-1 text-sm text-gray-400">
-                                            <span>Início: {format(new Date(job.startDate), "dd/MM/yyyy")}</span>
-                                            {job.endDate && <span>Fim: {format(new Date(job.endDate), "dd/MM/yyyy")}</span>}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))
-                    ))
-                    }
+                        ))}
                 </div>
             </main>
 
