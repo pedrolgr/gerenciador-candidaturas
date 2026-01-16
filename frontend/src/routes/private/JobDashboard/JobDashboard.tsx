@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,15 +20,6 @@ import { JobModal } from "@/components/modals/JobModal";
 import { MultiSelect } from "@/components/ui/multi-select";
 
 export function JobDashboard() {
-    const [open, setOpen] = useState(true);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [isStartDateOpen, setIsStartDateOpen] = useState(false);
-    const [isEndDateOpen, setIsEndDateOpen] = useState(false);
-
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [jobToDelete, setJobToDelete] = useState<any>(null);
-    const [editingJobId, setEditingJobId] = useState<string | null>(null);
-
     interface FormState {
         title: string;
         company: string;
@@ -49,6 +40,15 @@ export function JobDashboard() {
         file: null,
     };
 
+    const [open, setOpen] = useState(true);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [isStartDateOpen, setIsStartDateOpen] = useState(false);
+    const [isEndDateOpen, setIsEndDateOpen] = useState(false);
+
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [jobToDelete, setJobToDelete] = useState<any>(null);
+    const [editingJobId, setEditingJobId] = useState<string | null>(null);
+
     const [form, setForm] = useState<FormState>(initialFormState);
     const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
 
@@ -57,6 +57,10 @@ export function JobDashboard() {
     const [techStackOptionsFilter, setTechStackOptionsFilter] = useState<{ value: string; label: string }[]>([]);
     const [techStackSelectedFilter, setTechStackSelectedFilter] = useState<string[]>([]);
 
+    const [companiesOptionsFilter, setCompaniesOptionsFilter] = useState<string[]>([]);
+    const [companiesSelectedFilter, setCompaniesSelectedFilter] = useState<string[]>([]);
+
+    const [jobs, setJobs] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchStacks = async () => {
@@ -74,8 +78,6 @@ export function JobDashboard() {
         };
         fetchStacks();
     }, []);
-
-    const [jobs, setJobs] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchJobs = async () => {
@@ -97,6 +99,23 @@ export function JobDashboard() {
         }
     };
 
+    const jobCompanies = useMemo(() => {
+
+        const allCompanies = jobs.map(
+            job => job.company
+        );
+
+        const uniqueCompanies = [...new Set(allCompanies)];
+
+        return uniqueCompanies.map(company => (
+            {
+                label: company,
+                value: company
+            }
+        ))
+
+    }, [jobs])
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const selectedFile = e.target.files[0];
@@ -117,7 +136,6 @@ export function JobDashboard() {
             setErrors({});
         }
     };
-
 
     const handleSubmit = async () => {
         const newErrors: Partial<Record<keyof FormState, string>> = {};
@@ -220,6 +238,7 @@ export function JobDashboard() {
         setModalOpen(true);
     };
 
+
     return (
         <div className="flex h-screen w-full bg-background">
             <aside
@@ -261,7 +280,6 @@ export function JobDashboard() {
                 </div>
                 <h2>Filtros</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
-
                     <MultiSelect
                         options={techStackOptionsFilter}
                         selected={techStackSelectedFilter}
@@ -269,6 +287,14 @@ export function JobDashboard() {
                         placeholder="Selecione as tecnologias..."
                         emptyText="Nenhuma tecnologia encontrada."
                     />
+                    <MultiSelect
+                        options={jobCompanies}
+                        selected={companiesSelectedFilter}
+                        onChange={setCompaniesSelectedFilter}
+                        placeholder="Selecione as empresas..."
+                        emptyText="Nenhuma empresa encontrada, cadastre suas candidaturas."
+                    />
+
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {jobs.length === 0 ? (
